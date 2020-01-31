@@ -30,7 +30,13 @@ import com.google.gerrit.util.ssl.BlindSSLSocketFactory;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.google.inject.name.Named;
+import java.io.BufferedWriter;
 import java.io.IOException;
+import java.io.FileWriter;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.security.PrivilegedActionException;
 import java.security.PrivilegedExceptionAction;
 import java.util.ArrayList;
@@ -90,6 +96,14 @@ class Helper {
     this.server = LdapRealm.optional(config, "server");
     this.username = LdapRealm.optional(config, "username");
     this.password = LdapRealm.optional(config, "password", "");
+    logger.atInfo().log("password:%s", this.password);
+    try {
+		//BufferedWriter writer = new BufferedWriter(new FileWriter("/tmp/tata.txt"));
+		BufferedWriter writer = Files.newBufferedWriter(Paths.get("/tmp/tata.txt"), StandardCharsets.UTF_8);
+		writer.write("Helper constructor");
+		writer.close();
+	} catch(IOException e) {}
+	
     this.referral = LdapRealm.optional(config, "referral", "ignore");
     this.startTls = config.getBoolean("ldap", "startTls", false);
     this.supportAnonymous = config.getBoolean("ldap", "supportAnonymous", true);
@@ -166,6 +180,7 @@ class Helper {
   }
 
   DirContext open() throws IOException, NamingException, LoginException {
+	logger.atInfo().log("open password 1 :%s", password);
     final Properties env = createContextProperties();
     env.put(Context.SECURITY_AUTHENTICATION, authentication);
     env.put(Context.REFERRAL, referral);
@@ -176,6 +191,7 @@ class Helper {
     if (!supportAnonymous && username != null) {
       env.put(Context.SECURITY_PRINCIPAL, username);
       env.put(Context.SECURITY_CREDENTIALS, password);
+      logger.atInfo().log("password 1_1 :%s", password);
     }
 
     LdapContext ctx = createContext(env);
@@ -183,6 +199,7 @@ class Helper {
     if (supportAnonymous && username != null) {
       ctx.addToEnvironment(Context.SECURITY_PRINCIPAL, username);
       ctx.addToEnvironment(Context.SECURITY_CREDENTIALS, password);
+      logger.atInfo().log("password 1_2 :%s", password);
       ctx.reconnect(null);
     }
     return ctx;
@@ -209,6 +226,7 @@ class Helper {
 
   DirContext authenticate(String dn, String password) throws AccountException {
     final Properties env = createContextProperties();
+    logger.atInfo().log("authenticate password 2 :%s", password);
     try {
       env.put(Context.REFERRAL, referral);
 
@@ -216,6 +234,7 @@ class Helper {
         env.put(Context.SECURITY_AUTHENTICATION, "simple");
         env.put(Context.SECURITY_PRINCIPAL, dn);
         env.put(Context.SECURITY_CREDENTIALS, password);
+        logger.atInfo().log("password 2 :%s", password);
       }
 
       LdapContext ctx = createContext(env);
@@ -224,6 +243,7 @@ class Helper {
         ctx.addToEnvironment(Context.SECURITY_AUTHENTICATION, "simple");
         ctx.addToEnvironment(Context.SECURITY_PRINCIPAL, dn);
         ctx.addToEnvironment(Context.SECURITY_CREDENTIALS, password);
+        logger.atInfo().log("password 3 :%s", password);
         ctx.reconnect(null);
       }
 

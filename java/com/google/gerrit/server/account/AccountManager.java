@@ -77,7 +77,7 @@ public class AccountManager {
   private final GroupsUpdate.Factory groupsUpdateFactory;
   private final boolean autoUpdateAccountActiveStatus;
   private final SetInactiveFlag setInactiveFlag;
-
+  
   @Inject
   AccountManager(
       Sequences sequences,
@@ -97,6 +97,7 @@ public class AccountManager {
     this.accountsUpdateProvider = accountsUpdateProvider;
     this.byIdCache = byIdCache;
     this.realm = accountMapper;
+    System.out.println("accountMapper");
     this.userFactory = userFactory;
     this.sshKeyCache = sshKeyCache;
     this.projectCache = projectCache;
@@ -128,6 +129,7 @@ public class AccountManager {
    *     added to the admin group (only for the first account).
    */
   public AuthResult authenticate(AuthRequest who) throws AccountException, IOException {
+	logger.atInfo().log("AccountManager authenticate");  
     try {
       who = realm.authenticate(who);
     } catch (NoSuchUserException e) {

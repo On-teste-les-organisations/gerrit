@@ -72,6 +72,9 @@ public class RefPattern {
   public static RegExp toRegExp(String refPattern) {
     if (isRE(refPattern)) {
       refPattern = refPattern.substring(1);
+      refPattern = refPattern.replace("$","\\$");
+      refPattern = refPattern.replace("{","\\{");
+      refPattern = refPattern.replace("}","\\}");
     }
     return new RegExp(refPattern, RegExp.NONE);
   }
