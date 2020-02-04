@@ -117,7 +117,7 @@ abstract class LdapType {
 
     @Override
     String groupMemberPattern() {
-      return null; // Active Directory uses memberOf in the account
+      return "(&(objectClass=group)(member=${dn}))";
     }
 
     @Override
