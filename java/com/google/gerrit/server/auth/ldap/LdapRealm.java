@@ -43,7 +43,14 @@ import com.google.gerrit.server.logging.TraceContext.TraceTimer;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.google.inject.name.Named;
+import java.io.BufferedWriter;
 import java.io.IOException;
+import java.io.FileWriter;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
@@ -119,15 +126,26 @@ class LdapRealm extends AbstractRealm {
   }
 
   static String optional(Config config, String name) {
-    return config.getString("ldap", null, name);
+    String a = config.getString("ldap", null, name);
+    logger.atInfo().log("LdapRealm option name:%s a:%s", name, a);
+    return a;
   }
 
   static int optional(Config config, String name, int defaultValue) {
-    return config.getInt("ldap", name, defaultValue);
+    int a = config.getInt("ldap", name, defaultValue);
+    logger.atInfo().log("LdapRealm option name:%s a:%s", name, a);
+    return a;
   }
 
   static String optional(Config config, String name, String defaultValue) {
     final String v = optional(config, name);
+    try {
+		//BufferedWriter writer = new BufferedWriter(new FileWriter("/tmp/tata.txt"));
+		BufferedWriter writer = Files.newBufferedWriter(Paths.get("/tmp/titi.txt"), StandardCharsets.UTF_8, StandardOpenOption.APPEND);
+		String a = "optional name:"+name+" value:"+v;
+		writer.write(a);
+		writer.close();
+	} catch(IOException e) {}
     if (Strings.isNullOrEmpty(v)) {
       return defaultValue;
     }
@@ -170,12 +188,14 @@ class LdapRealm extends AbstractRealm {
       return null;
 
     } else {
+	  logger.atInfo().log("LdapRealm optdef config:>%s< n:>%s<  d:>%s<", c, n, d);
       checkBackendCompliance(n, v[0], Strings.isNullOrEmpty(d));
       return v[0];
     }
   }
 
   static String reqdef(Config c, String n, String d) {
+	logger.atInfo().log("LdapRealm reqdef config:>%s< n:>%s<  d:>%s<", c, n, d);
     final String v = optdef(c, n, d);
     if (v == null) {
       throw new IllegalArgumentException("No ldap." + n + " configured");
@@ -184,6 +204,7 @@ class LdapRealm extends AbstractRealm {
   }
 
   static ParameterizedString paramString(Config c, String n, String d) {
+	logger.atInfo().log("LdapRealm paramString config:>%s< n:>%s<  d:>%s<", c, n, d);
     String expression = optdef(c, n, d);
     if (expression == null) {
       return null;
@@ -205,7 +226,7 @@ class LdapRealm extends AbstractRealm {
 
   @Override
   public boolean allowsEdit(AccountFieldName field) {
-    return !readOnlyAccountFields.contains(field);
+    return true;
   }
 
   static String apply(ParameterizedString p, LdapQuery.Result m) throws NamingException {
@@ -271,6 +292,7 @@ class LdapRealm extends AbstractRealm {
         // need to know what access rights they have soon.
         //
         if (fetchMemberOfEagerly || mandatoryGroup != null) {
+		  logger.atInfo().log("queryForGroups fetchMemberOfEagerly:%s username:%s", fetchMemberOfEagerly?"y":"n", username);
           Set<AccountGroup.UUID> groups = helper.queryForGroups(ctx, username, m);
           if (mandatoryGroup != null) {
             GroupReference mandatoryGroupRef =

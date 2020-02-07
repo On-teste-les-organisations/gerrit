@@ -14,6 +14,7 @@
 
 package com.google.gerrit.server.permissions;
 
+import com.google.common.flogger.FluentLogger;
 import static com.google.gerrit.common.data.PermissionRule.Action.BLOCK;
 import static com.google.gerrit.server.project.RefPattern.isRE;
 import static java.util.stream.Collectors.mapping;
@@ -55,6 +56,8 @@ import java.util.stream.Collectors;
  * appears in the reference name, and also only if the user is a member of the relevant group.
  */
 public class PermissionCollection {
+  private static final FluentLogger logger = FluentLogger.forEnclosingClass();
+
   @Singleton
   public static class Factory {
     private final SectionSortCache sorter;
@@ -88,7 +91,9 @@ public class PermissionCollection {
         CurrentUser user,
         Map<AccessSection, Project.NameKey> out) {
       boolean perUser = false;
+      logger.atInfo().log("filterRefMatchingSections");
       for (SectionMatcher sm : matcherList) {
+		logger.atInfo().log("filterRefMatchingSections SectionMatcher");
         // If the matcher has to expand parameters and its prefix matches the
         // reference there is a very good chance the reference is actually user
         // specific, even if the matcher does not match the reference. Since its
@@ -101,9 +106,11 @@ public class PermissionCollection {
         // that will never be shared with non-user references, and the per-user
         // references are usually less frequent than the non-user references.
         if (sm.getMatcher() instanceof ExpandParameters) {
+		  logger.atInfo().log("filterRefMatchingSections SectionMatcher ExpandParameters");
           if (!((ExpandParameters) sm.getMatcher()).matchPrefix(ref)) {
             continue;
           }
+          logger.atInfo().log("filterRefMatchingSections SectionMatcher ExpandParameters perUser");
           perUser = true;
           if (sm.match(ref, user)) {
             out.put(sm.getSection(), sm.getProject());
@@ -129,9 +136,12 @@ public class PermissionCollection {
      */
     PermissionCollection filter(
         Iterable<SectionMatcher> matcherList, String ref, CurrentUser user) {
+		logger.atInfo().log("PermissionCollection filter ENTRY");
       try (Timer0.Context ignored = filterLatency.start()) {
         if (isRE(ref)) {
+		  logger.atInfo().log("PermissionCollection filter call before shortestExampletest ref:" + ref);
           ref = RefPattern.shortestExample(ref);
+          logger.atInfo().log("PermissionCollection filter call after shortestExampletest ref:" + ref);
         } else if (ref.endsWith("/*")) {
           ref = ref.substring(0, ref.length() - 1);
         }
@@ -161,7 +171,7 @@ public class PermissionCollection {
         for (List<AccessSection> secs : accessByProject.values()) {
           sorter.sort(ref, secs);
         }
-
+		logger.atInfo().log("PermissionCollection filter EXIT new PermissionCollection:%s perUser:%s", ref, perUser);
         return new PermissionCollection(
             Lists.newArrayList(accessByProject.values()), sections, perUser);
       }
@@ -190,14 +200,20 @@ public class PermissionCollection {
 
   /** calculates permissions for ALLOW processing. */
   private List<PermissionRule> calculateAllowRules(String permName) {
+	logger.atInfo().log("calculateAllowRules permName:"+permName);
     Set<SeenRule> seen = new HashSet<>();
 
     List<PermissionRule> r = new ArrayList<>();
+    int mycounter = 0;
     for (AccessSection s : accessSectionsUpward) {
       Permission p = s.getPermission(permName);
       if (p == null) {
         continue;
       }
+      mycounter = mycounter+1;
+      for (PermissionRule pr : p.getRules()) {
+		logger.atInfo().log("calculateAllowRules "+mycounter+"permName:"+permName+" pr:"+pr);
+	  }
       for (PermissionRule pr : p.getRules()) {
         SeenRule sr = SeenRule.create(s, pr);
         if (seen.contains(sr)) {

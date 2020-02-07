@@ -59,6 +59,7 @@ class RefControl {
   private Boolean isVisible;
 
   RefControl(ProjectControl projectControl, String ref, PermissionCollection relevant) {
+	logger.atInfo().log("RefControl Constructor refName:"+ref);
     this.projectControl = projectControl;
     this.refName = ref;
     this.relevant = relevant;
@@ -386,8 +387,9 @@ class RefControl {
 
   /** True if the user has this permission. */
   private boolean canPerform(String permissionName, boolean isChangeOwner, boolean withForce) {
+	logger.atInfo().log("canPerform ENTRY ref:"+refName+" permissionName:"+permissionName);
     if (isBlocked(permissionName, isChangeOwner, withForce)) {
-      logger.atFine().log(
+      logger.atInfo().log(
           "'%s' cannot perform '%s' with force=%s on project '%s' for ref '%s' (caller: %s)"
               + " because this permission is blocked",
           getUser().getLoggableName(),
@@ -400,9 +402,10 @@ class RefControl {
     }
 
     for (PermissionRule pr : relevant.getAllowRules(permissionName)) {
+	  logger.atInfo().log("canPerform ref:"+refName+" permissionName:"+permissionName+ " pr:"+pr+" withForce:"+withForce+" isChangeOwner:"+isChangeOwner);
       if (isAllow(pr, withForce) && projectControl.match(pr, isChangeOwner)) {
-        logger.atFine().log(
-            "'%s' can perform '%s' with force=%s on project '%s' for ref '%s' (caller: %s)",
+        logger.atInfo().log(
+            "canPerform '%s' can perform '%s' with force=%s on project '%s' for ref '%s' (caller: %s)",
             getUser().getLoggableName(),
             permissionName,
             withForce,
@@ -413,8 +416,8 @@ class RefControl {
       }
     }
 
-    logger.atFine().log(
-        "'%s' cannot perform '%s' with force=%s on project '%s' for ref '%s' (caller: %s)",
+    logger.atInfo().log(
+        "canPerform EXIT '%s' cannot perform '%s' with force=%s on project '%s' for ref '%s' (caller: %s)",
         getUser().getLoggableName(),
         permissionName,
         withForce,
