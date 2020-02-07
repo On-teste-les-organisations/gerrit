@@ -80,7 +80,7 @@ public abstract class RefPatternMatcher {
 
     @Override
     public boolean match(String ref, CurrentUser user) {
-      return pattern.matcher(ref).matches();
+      return pattern.matcher(ref).matches() || ref.equals(pattern.pattern());
     }
   }
 
@@ -97,14 +97,16 @@ public abstract class RefPatternMatcher {
         // is not likely to be a valid part of the regex. This later
         // allows the pattern prefix to be clipped, saving time on
         // evaluation.
-        String replacement = ":PLACEHOLDER:";
+        
         Map<String, String> params =
             ImmutableMap.of(
-                RefPattern.USERID_SHARDED, replacement,
-                RefPattern.USERNAME, replacement);
+                RefPattern.USERID_SHARDED, "\\$\\{" + RefPattern.USERID_SHARDED + "\\}",
+				RefPattern.USERNAME, "\\$\\{" + RefPattern.USERNAME + "\\}");
         Automaton am = RefPattern.toRegExp(template.replace(params)).toAutomaton();
+        
+        //Automaton am = RefPattern.toRegExp(pattern).toAutomaton();
         String rePrefix = am.getCommonPrefix();
-        prefix = rePrefix.substring(0, rePrefix.indexOf(replacement));
+        prefix = rePrefix.substring(1, rePrefix.indexOf("${"));
       } else {
         prefix = pattern.substring(0, pattern.indexOf("${"));
       }
@@ -112,7 +114,11 @@ public abstract class RefPatternMatcher {
 
     @Override
     public boolean match(String ref, CurrentUser user) {
-      if (!ref.startsWith(prefix)) {
+      if (isRE(ref)) {
+        if (!ref.substring(1).startsWith(prefix)) {
+          return false;
+        }
+      } else if (!ref.startsWith(prefix)) {
         return false;
       }
 
@@ -142,7 +148,7 @@ public abstract class RefPatternMatcher {
     }
 
     public boolean matchPrefix(String ref) {
-      return ref.startsWith(prefix);
+      return ref.startsWith(prefix) || (isRE(ref) && ref.substring(1).startsWith(prefix));
     }
 
     private String expand(String parameterizedRef, String userName, Account.Id accountId) {

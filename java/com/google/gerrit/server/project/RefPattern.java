@@ -73,15 +73,16 @@ public class RefPattern {
   }
 
   public static RegExp toRegExp(String refPattern) {
+    /*
     if (isRE(refPattern)) {
       refPattern = refPattern.substring(1);
     }
+    */
     ParameterizedString template = new ParameterizedString(refPattern);
-    String replacement = ":PLACEHOLDER:";
     Map<String, String> params =
         ImmutableMap.of(
-            RefPattern.USERID_SHARDED, replacement,
-            RefPattern.USERNAME, replacement);
+            RefPattern.USERID_SHARDED, "\\$\\{" + RefPattern.USERID_SHARDED + "\\}",
+            RefPattern.USERNAME, "\\$\\{" + RefPattern.USERNAME + "\\}");
     return new RegExp(template.replace(params), RegExp.NONE);
   }
 
