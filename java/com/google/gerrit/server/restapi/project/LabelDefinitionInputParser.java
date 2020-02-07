@@ -14,6 +14,7 @@
 
 package com.google.gerrit.server.restapi.project;
 
+import com.google.common.flogger.FluentLogger;
 import com.google.common.primitives.Shorts;
 import com.google.gerrit.common.data.LabelFunction;
 import com.google.gerrit.common.data.LabelType;
@@ -32,6 +33,7 @@ import java.util.Optional;
 import java.util.Set;
 
 public class LabelDefinitionInputParser {
+  private static final FluentLogger logger = FluentLogger.forEnclosingClass();
   public static LabelFunction parseFunction(String functionString) throws BadRequestException {
     Optional<LabelFunction> function = LabelFunction.parse(functionString.trim());
     return function.orElseThrow(
@@ -80,6 +82,7 @@ public class LabelDefinitionInputParser {
         newBranch = RefNames.REFS_HEADS + newBranch;
       }
       try {
+		logger.atInfo().log("call2 de validate");
         RefPattern.validate(newBranch);
       } catch (InvalidNameException e) {
         throw new BadRequestException("invalid branch: " + branch, e);

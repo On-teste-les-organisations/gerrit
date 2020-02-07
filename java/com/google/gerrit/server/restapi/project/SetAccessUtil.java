@@ -15,6 +15,7 @@
 package com.google.gerrit.server.restapi.project;
 
 import com.google.common.collect.Iterables;
+import com.google.common.flogger.FluentLogger;
 import com.google.gerrit.common.data.AccessSection;
 import com.google.gerrit.common.data.GlobalCapability;
 import com.google.gerrit.common.data.GroupDescription;
@@ -48,6 +49,7 @@ import java.util.Set;
 
 @Singleton
 public class SetAccessUtil {
+  private static final FluentLogger logger = FluentLogger.forEnclosingClass();
   private final GroupResolver groupResolver;
   private final AllProjectsName allProjects;
   private final Provider<SetParent> setParent;
@@ -149,6 +151,7 @@ public class SetAccessUtil {
         if (!AccessSection.isValidRefSectionName(name)) {
           throw new BadRequestException("invalid section name");
         }
+        logger.atInfo().log("call1 de validate");
         RefPattern.validate(name);
       } else {
         // Check all permissions for soundness
