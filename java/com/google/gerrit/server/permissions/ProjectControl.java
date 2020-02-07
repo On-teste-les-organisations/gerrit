@@ -118,17 +118,18 @@ class ProjectControl {
   }
 
   public RefControl controlForRef(String refName) {
-	logger.atInfo().log("controlForRef refName:%s",refName);
+	logger.atInfo().log("controlForRef ENTRY refName:%s",refName);
     if (refControls == null) {
       refControls = new HashMap<>();
     }
     RefControl ctl = refControls.get(refName);
     if (ctl == null) {
-	  logger.atInfo().log("controlForRef create RefControl refName:%s user:%s",refName, user.getLoggableName());
+	  logger.atInfo().log("controlForRef new RefControl refName:%s user:%s",refName, user.getLoggableName());
       PermissionCollection relevant = permissionFilter.filter(access(), refName, user);
       ctl = new RefControl(this, refName, relevant);
       refControls.put(refName, ctl);
     }
+    logger.atInfo().log("controlForRef EXIT refName:%s",refName);
     return ctl;
   }
 

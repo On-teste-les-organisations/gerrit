@@ -113,8 +113,12 @@ public class PermissionCollection {
           logger.atInfo().log("filterRefMatchingSections SectionMatcher ExpandParameters perUser");
           perUser = true;
           if (sm.match(ref, user)) {
+			logger.atInfo().log("filterRefMatchingSections SectionMatcher ExpandParameters perUser ca match");
             out.put(sm.getSection(), sm.getProject());
           }
+          else {
+			logger.atInfo().log("filterRefMatchingSections SectionMatcher ExpandParameters perUser ca match PAS");
+		  }
         } else if (sm.match(ref, null)) {
           out.put(sm.getSection(), sm.getProject());
         }
@@ -140,7 +144,7 @@ public class PermissionCollection {
       try (Timer0.Context ignored = filterLatency.start()) {
         if (isRE(ref)) {
 		  logger.atInfo().log("PermissionCollection filter call before shortestExampletest ref:" + ref);
-          ref = RefPattern.shortestExample(ref);
+          //ref = RefPattern.shortestExample(ref);
           logger.atInfo().log("PermissionCollection filter call after shortestExampletest ref:" + ref);
         } else if (ref.endsWith("/*")) {
           ref = ref.substring(0, ref.length() - 1);
@@ -200,7 +204,7 @@ public class PermissionCollection {
 
   /** calculates permissions for ALLOW processing. */
   private List<PermissionRule> calculateAllowRules(String permName) {
-	logger.atInfo().log("calculateAllowRules permName:"+permName);
+	logger.atInfo().log("calculateAllowRules ENTRY permName:"+permName);
     Set<SeenRule> seen = new HashSet<>();
 
     List<PermissionRule> r = new ArrayList<>();
@@ -212,7 +216,7 @@ public class PermissionCollection {
       }
       mycounter = mycounter+1;
       for (PermissionRule pr : p.getRules()) {
-		logger.atInfo().log("calculateAllowRules "+mycounter+"permName:"+permName+" pr:"+pr);
+		logger.atInfo().log("calculateAllowRules "+mycounter+" permName:"+permName+" pr:"+pr);
 	  }
       for (PermissionRule pr : p.getRules()) {
         SeenRule sr = SeenRule.create(s, pr);
@@ -240,6 +244,7 @@ public class PermissionCollection {
         break;
       }
     }
+    logger.atInfo().log("calculateAllowRules EXIT permName:"+permName);
     return r;
   }
 

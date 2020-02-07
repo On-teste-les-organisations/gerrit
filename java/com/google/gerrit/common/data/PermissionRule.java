@@ -217,7 +217,7 @@ public class PermissionRule implements Comparable<PermissionRule> {
   }
 
   public static PermissionRule fromString(String src, boolean mightUseRange) {
-	logger.atInfo().log("fromString >%s<", src);
+	logger.atInfo().log("setAction fromString >%s<", src);
     final String orig = src;
     final PermissionRule rule = new PermissionRule();
 

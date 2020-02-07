@@ -265,6 +265,7 @@ class RefControl {
   }
 
   private static boolean isAllow(PermissionRule pr, boolean withForce) {
+	logger.atInfo().log("isAllow ENTRY %s", pr);
     return pr.getAction() == Action.ALLOW && (pr.getForce() || !withForce);
   }
 
@@ -401,6 +402,7 @@ class RefControl {
       return false;
     }
 
+	logger.atInfo().log("canPerform MAIN1 ref:"+refName+" permissionName:"+permissionName);
     for (PermissionRule pr : relevant.getAllowRules(permissionName)) {
 	  logger.atInfo().log("canPerform ref:"+refName+" permissionName:"+permissionName+ " pr:"+pr+" withForce:"+withForce+" isChangeOwner:"+isChangeOwner);
       if (isAllow(pr, withForce) && projectControl.match(pr, isChangeOwner)) {
