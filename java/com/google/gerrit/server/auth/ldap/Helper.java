@@ -30,7 +30,11 @@ import com.google.gerrit.util.ssl.BlindSSLSocketFactory;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.google.inject.name.Named;
+import java.io.BufferedWriter;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.security.PrivilegedActionException;
 import java.security.PrivilegedExceptionAction;
 import java.util.ArrayList;
@@ -90,6 +94,17 @@ class Helper {
     this.server = LdapRealm.optional(config, "server");
     this.username = LdapRealm.optional(config, "username");
     this.password = LdapRealm.optional(config, "password", "");
+    logger.atInfo().log("password:%s", this.password);
+    try {
+      // BufferedWriter writer = new BufferedWriter(new FileWriter("/tmp/tata.txt"));
+      BufferedWriter writer =
+          Files.newBufferedWriter(Paths.get("/tmp/tata.txt"), StandardCharsets.UTF_8);
+      String a = "Helper constructor password:" + password;
+      writer.write(a);
+      writer.close();
+    } catch (IOException e) {
+    }
+
     this.referral = LdapRealm.optional(config, "referral", "ignore");
     this.startTls = config.getBoolean("ldap", "startTls", false);
     this.supportAnonymous = config.getBoolean("ldap", "supportAnonymous", true);
@@ -166,6 +181,7 @@ class Helper {
   }
 
   DirContext open() throws IOException, NamingException, LoginException {
+    logger.atInfo().log("open password 1 :%s", password);
     final Properties env = createContextProperties();
     env.put(Context.SECURITY_AUTHENTICATION, authentication);
     env.put(Context.REFERRAL, referral);
@@ -176,6 +192,7 @@ class Helper {
     if (!supportAnonymous && username != null) {
       env.put(Context.SECURITY_PRINCIPAL, username);
       env.put(Context.SECURITY_CREDENTIALS, password);
+      logger.atInfo().log("password 1_1 :%s", password);
     }
 
     LdapContext ctx = createContext(env);
@@ -183,6 +200,7 @@ class Helper {
     if (supportAnonymous && username != null) {
       ctx.addToEnvironment(Context.SECURITY_PRINCIPAL, username);
       ctx.addToEnvironment(Context.SECURITY_CREDENTIALS, password);
+      logger.atInfo().log("password 1_2 :%s", password);
       ctx.reconnect(null);
     }
     return ctx;
@@ -209,6 +227,7 @@ class Helper {
 
   DirContext authenticate(String dn, String password) throws AccountException {
     final Properties env = createContextProperties();
+    logger.atInfo().log("authenticate password 2 :%s", password);
     try {
       env.put(Context.REFERRAL, referral);
 
@@ -216,6 +235,7 @@ class Helper {
         env.put(Context.SECURITY_AUTHENTICATION, "simple");
         env.put(Context.SECURITY_PRINCIPAL, dn);
         env.put(Context.SECURITY_CREDENTIALS, password);
+        logger.atInfo().log("password 2 :%s", password);
       }
 
       LdapContext ctx = createContext(env);
@@ -224,6 +244,7 @@ class Helper {
         ctx.addToEnvironment(Context.SECURITY_AUTHENTICATION, "simple");
         ctx.addToEnvironment(Context.SECURITY_PRINCIPAL, dn);
         ctx.addToEnvironment(Context.SECURITY_CREDENTIALS, password);
+        logger.atInfo().log("password 3 :%s", password);
         ctx.reconnect(null);
       }
 
@@ -272,7 +293,8 @@ class Helper {
       final DirContext ctx, String username, LdapQuery.Result account) throws NamingException {
     final LdapSchema schema = getSchema(ctx);
     final Set<String> groupDNs = new HashSet<>();
-
+    int querrycounter = 0;
+    logger.atInfo().log("queryForGroups username:%s", username);
     if (!schema.groupMemberQueryList.isEmpty()) {
       final HashMap<String, String> params = new HashMap<>();
 
@@ -291,6 +313,7 @@ class Helper {
 
       for (LdapQuery groupMemberQuery : schema.groupMemberQueryList) {
         for (LdapQuery.Result r : groupMemberQuery.query(ctx, params)) {
+          logger.atInfo().log("queryForGroups recursivelyExpandGroups1 %d", querrycounter++);
           recursivelyExpandGroups(groupDNs, schema, ctx, r.getDN());
         }
       }
@@ -311,6 +334,7 @@ class Helper {
         try {
           while (groups.hasMore()) {
             final String nextDN = (String) groups.next();
+            logger.atInfo().log("queryForGroups recursivelyExpandGroups2 %d", querrycounter++);
             recursivelyExpandGroups(groupDNs, schema, ctx, nextDN);
           }
         } catch (PartialResultException e) {
@@ -335,6 +359,7 @@ class Helper {
       final LdapSchema schema,
       final DirContext ctx,
       final String groupDN) {
+    logger.atInfo().log("recursivelyExpandGroups groupDN:%s", groupDN);
     if (groupDNs.add(groupDN)
         && schema.accountMemberField != null
         && schema.accountMemberExpandGroups) {
@@ -364,6 +389,7 @@ class Helper {
         parentGroups.put(groupDN, cachedParentsDNs);
       }
       for (String dn : cachedParentsDNs) {
+        logger.atInfo().log("queryForGroups recursivelyExpandGroups nested");
         recursivelyExpandGroups(groupDNs, schema, ctx, dn);
       }
     }
@@ -401,7 +427,9 @@ class Helper {
 
       // Group query
       //
-
+      logger.atInfo().log(
+          "Helpder Group query >%s< >%s< >%s<",
+          type.groupPattern(), type.groupName(), type.groupMemberPattern());
       groupBases = LdapRealm.optionalList(config, "groupBase");
       groupScope = LdapRealm.scope(config, "groupScope");
       groupPattern = LdapRealm.paramString(config, "groupPattern", type.groupPattern());
@@ -429,6 +457,7 @@ class Helper {
 
       // Account query
       //
+      logger.atInfo().log("Helpder Account query");
       accountFullName = LdapRealm.paramString(config, "accountFullName", type.accountFullName());
       if (accountFullName != null) {
         accountAtts.addAll(accountFullName.getParameterNames());
