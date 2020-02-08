@@ -28,11 +28,7 @@ import com.google.gerrit.server.auth.UserNotAllowedException;
 import com.google.gerrit.server.config.AuthConfig;
 import com.google.gerrit.server.config.GerritServerConfig;
 import com.google.inject.Inject;
-import java.io.BufferedWriter;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.Locale;
 import javax.naming.NamingException;
 import javax.naming.directory.DirContext;
@@ -49,15 +45,6 @@ public class LdapAuthBackend implements AuthBackend {
 
   @Inject
   public LdapAuthBackend(Helper helper, AuthConfig authConfig, @GerritServerConfig Config config) {
-    logger.atInfo().log("LdapAuthBackend constructor");
-    try {
-      // BufferedWriter writer = new BufferedWriter(new FileWriter("/tmp/toto.txt"));
-      BufferedWriter writer =
-          Files.newBufferedWriter(Paths.get("/tmp/toto.txt"), StandardCharsets.UTF_8);
-      writer.write("LdapAuthBackend constructor");
-      writer.close();
-    } catch (IOException e) {
-    }
     this.helper = helper;
     this.authConfig = authConfig;
     this.lowerCaseUsername = config.getBoolean("ldap", "localUsernameToLowerCase", false);

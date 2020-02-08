@@ -19,7 +19,6 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.flogger.FluentLogger;
 import com.google.gerrit.common.data.AccessSection;
 import com.google.gerrit.common.data.ParameterizedString;
 import com.google.gerrit.exceptions.InvalidNameException;
@@ -31,7 +30,6 @@ import java.util.regex.PatternSyntaxException;
 import org.eclipse.jgit.lib.Repository;
 
 public class RefPattern {
-  private static final FluentLogger logger = FluentLogger.forEnclosingClass();
   public static final String USERID_SHARDED = "shardeduserid";
   public static final String USERNAME = "username";
 
@@ -42,18 +40,14 @@ public class RefPattern {
               new CacheLoader<String, String>() {
                 @Override
                 public String load(String refPattern) {
-				  logger.atInfo().log("exampleCache CacheLoader load refPattern:%s", refPattern);
                   return example(refPattern);
                 }
               });
 
   public static String shortestExample(String refPattern) {
-    logger.atInfo().log("shortestExampletest test isRE refPattern:%s", refPattern);
     if (isRE(refPattern)) {
       try {
-        String toRet = exampleCache.get(refPattern);
-        logger.atInfo().log("validate shortestExampletest toRet:" + toRet);
-        return toRet;
+        return exampleCache.get(refPattern);
       } catch (ExecutionException e) {
         Throwables.throwIfUnchecked(e.getCause());
         throw new RuntimeException(e);
@@ -71,7 +65,6 @@ public class RefPattern {
     // Repository.isValidRefName() if not combined with star [*].
     // To get around this, we substitute the \0 with an arbitrary
     // accepted character.
-    logger.atInfo().log("example getShortestExample:%s", refPattern);
     return toRegExp(refPattern).toAutomaton().getShortestExample(true).replace('\0', '-');
   }
 
@@ -80,7 +73,6 @@ public class RefPattern {
   }
 
   public static RegExp toRegExp(String refPattern) {
-    logger.atInfo().log("toRegExp ENTRY refPattern:%s", refPattern);
     if (isRE(refPattern)) {
       refPattern = refPattern.substring(1);
     }
@@ -90,19 +82,12 @@ public class RefPattern {
         ImmutableMap.of(
             RefPattern.USERID_SHARDED, replacement,
             RefPattern.USERNAME, replacement);
-    String toto = template.replace(params);
-    logger.atInfo().log("toRegExp EXIT new RegExp %s", toto);
-    return new RegExp(toto, RegExp.NONE);
+    return new RegExp(template.replace(params), RegExp.NONE);
   }
 
   public static void validate(String refPattern) throws InvalidNameException {
-    logger.atInfo().log("validate ENTRY refPattern:%s", refPattern);
     if (refPattern.startsWith(AccessSection.REGEX_PREFIX)) {
-	  logger.atInfo().log("validate before shortestExample refPattern:%s", refPattern);
-      String shortestEx = shortestExample(refPattern);
-      logger.atInfo().log("validate after shortestExample shortestEx:%s", shortestEx);
-      if (!Repository.isValidRefName(shortestEx)) {
-        logger.atInfo().log("validate InvalidNameException1");
+      if (!Repository.isValidRefName(shortestExample(refPattern))) {
         throw new InvalidNameException(refPattern);
       }
     } else if (refPattern.equals(AccessSection.ALL)) {
@@ -110,11 +95,9 @@ public class RefPattern {
     } else if (refPattern.endsWith("/*")) {
       String prefix = refPattern.substring(0, refPattern.length() - 2);
       if (!Repository.isValidRefName(prefix)) {
-        logger.atInfo().log("validate InvalidNameException2");
         throw new InvalidNameException(refPattern);
       }
     } else if (!Repository.isValidRefName(refPattern)) {
-      logger.atInfo().log("validate InvalidNameException3");
       throw new InvalidNameException(refPattern);
     }
     validateRegExp(refPattern);
@@ -122,12 +105,10 @@ public class RefPattern {
 
   public static void validateRegExp(String refPattern) throws InvalidNameException {
     try {
-      logger.atInfo().log("validateRegExp:" + refPattern);
       refPattern = refPattern.replace("${" + USERID_SHARDED + "}", "");
       refPattern = refPattern.replace("${" + USERNAME + "}", "");
       Pattern.compile(refPattern);
     } catch (PatternSyntaxException e) {
-      logger.atInfo().log("validate InvalidNameException4");
       throw new InvalidNameException(refPattern + " " + e.getMessage());
     }
   }

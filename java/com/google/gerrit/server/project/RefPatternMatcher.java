@@ -20,7 +20,6 @@ import static com.google.gerrit.server.project.RefPattern.isRE;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Streams;
-import com.google.common.flogger.FluentLogger;
 import com.google.gerrit.common.data.ParameterizedString;
 import com.google.gerrit.entities.Account;
 import com.google.gerrit.entities.RefNames;
@@ -32,21 +31,14 @@ import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 public abstract class RefPatternMatcher {
-  private static final FluentLogger loggger = FluentLogger.forEnclosingClass();
-
   public static RefPatternMatcher getMatcher(String pattern) {
-    loggger.atInfo().log("inside RefPatternMatcher getMatcher ", pattern);
     if (pattern.contains("${")) {
-	  loggger.atInfo().log("inside RefPatternMatcher new ExpandParameters");
       return new ExpandParameters(pattern);
     } else if (isRE(pattern)) {
-	  loggger.atInfo().log("inside RefPatternMatcher new Regexp");
       return new Regexp(pattern);
     } else if (pattern.endsWith("/*")) {
-	  loggger.atInfo().log("inside RefPatternMatcher new Prefix");
       return new Prefix(pattern.substring(0, pattern.length() - 1));
     } else {
-	  loggger.atInfo().log("inside RefPatternMatcher new Exact");
       return new Exact(pattern);
     }
   }
@@ -54,7 +46,6 @@ public abstract class RefPatternMatcher {
   public abstract boolean match(String ref, CurrentUser user);
 
   private static class Exact extends RefPatternMatcher {
-    private static final FluentLogger logger = FluentLogger.forEnclosingClass();
     private final String expect;
 
     Exact(String name) {
@@ -63,13 +54,11 @@ public abstract class RefPatternMatcher {
 
     @Override
     public boolean match(String ref, CurrentUser user) {
-      logger.atInfo().log("match1");
       return expect.equals(ref);
     }
   }
 
   private static class Prefix extends RefPatternMatcher {
-    private static final FluentLogger logger = FluentLogger.forEnclosingClass();
     private final String prefix;
 
     Prefix(String pfx) {
@@ -78,13 +67,11 @@ public abstract class RefPatternMatcher {
 
     @Override
     public boolean match(String ref, CurrentUser user) {
-      logger.atInfo().log("match2");
       return ref.startsWith(prefix);
     }
   }
 
   private static class Regexp extends RefPatternMatcher {
-    private static final FluentLogger logger = FluentLogger.forEnclosingClass();
     private final Pattern pattern;
 
     Regexp(String re) {
@@ -93,21 +80,17 @@ public abstract class RefPatternMatcher {
 
     @Override
     public boolean match(String ref, CurrentUser user) {
-      boolean resultat = pattern.matcher(ref).matches();
-      logger.atInfo().log(
-          "match3 pattern.pattern():>%s< ref:>%s< resultat:%s", pattern.pattern(), ref, resultat);
-      return resultat;
+      return pattern.matcher(ref).matches();
     }
   }
 
   public static class ExpandParameters extends RefPatternMatcher {
-    private static final FluentLogger logger = FluentLogger.forEnclosingClass();
     private final ParameterizedString template;
     private final String prefix;
 
     ExpandParameters(String pattern) {
       template = new ParameterizedString(pattern);
-      logger.atInfo().log("ExpandParameters isRE");
+
       if (isRE(pattern)) {
         // Replace ${username} and ${shardeduserid} with ":PLACEHOLDER:"
         // as : is not legal in a reference and the string :PLACEHOLDER:
@@ -122,7 +105,6 @@ public abstract class RefPatternMatcher {
         Automaton am = RefPattern.toRegExp(template.replace(params)).toAutomaton();
         String rePrefix = am.getCommonPrefix();
         prefix = rePrefix.substring(0, rePrefix.indexOf(replacement));
-        logger.atInfo().log("ExpandParameters pattern:%s prefix:%s", pattern, prefix);
       } else {
         prefix = pattern.substring(0, pattern.indexOf("${"));
       }
@@ -130,9 +112,7 @@ public abstract class RefPatternMatcher {
 
     @Override
     public boolean match(String ref, CurrentUser user) {
-      logger.atInfo().log("match4 ENTRY ref:%s prefix:%s pattern:%s", ref, prefix, template.getPattern());
       if (!ref.startsWith(prefix)) {
-        logger.atInfo().log("match4 EXIT1 false");
         return false;
       }
 
@@ -143,15 +123,13 @@ public abstract class RefPatternMatcher {
         } else {
           u = username;
         }
-        logger.atInfo().log("match4 isRE MAIN1 u:%s user:%s", u, user);
+
         Account.Id accountId = user.isIdentifiedUser() ? user.getAccountId() : null;
         RefPatternMatcher next = getMatcher(expand(template, u, accountId));
         if (next != null && next.match(expand(ref, u, accountId), user)) {
-          logger.atInfo().log("match4 EXIT3 true");
           return true;
         }
       }
-      logger.atInfo().log("match4 EXIT3 false");
       return false;
     }
 
@@ -164,7 +142,6 @@ public abstract class RefPatternMatcher {
     }
 
     public boolean matchPrefix(String ref) {
-      logger.atInfo().log("matchPrefix ref:%s prefix:%s", ref, prefix);
       return ref.startsWith(prefix);
     }
 
@@ -177,7 +154,6 @@ public abstract class RefPatternMatcher {
 
     private String expand(
         ParameterizedString parameterizedRef, String userName, Account.Id accountId) {
-      logger.atInfo().log("expand ENTRY");
       Map<String, String> params = new HashMap<>();
       params.put(RefPattern.USERNAME, userName);
       if (accountId != null) {

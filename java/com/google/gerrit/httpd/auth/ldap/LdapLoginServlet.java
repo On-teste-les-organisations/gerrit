@@ -109,7 +109,6 @@ class LdapLoginServlet extends HttpServlet {
     req.setCharacterEncoding(UTF_8.name());
     String username = Strings.nullToEmpty(req.getParameter("username")).trim();
     String password = Strings.nullToEmpty(req.getParameter("password"));
-    logger.atInfo().log("username:%s password:%s", username, password);
     String remember = Strings.nullToEmpty(req.getParameter("rememberme"));
     if (username.isEmpty() || password.isEmpty()) {
       sendForm(req, res, "Invalid username or password.");

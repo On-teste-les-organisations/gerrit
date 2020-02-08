@@ -14,10 +14,7 @@
 
 package com.google.gerrit.common.data;
 
-import com.google.common.flogger.FluentLogger;
-
 public class PermissionRule implements Comparable<PermissionRule> {
-  private static final FluentLogger logger = FluentLogger.forEnclosingClass();
   public static final String FORCE_PUSH = "Force Push";
   public static final String FORCE_EDIT = "Force Edit";
 
@@ -43,12 +40,10 @@ public class PermissionRule implements Comparable<PermissionRule> {
   }
 
   public Action getAction() {
-    logger.atInfo().log("getAction:" + action);
     return action;
   }
 
   public void setAction(Action action) {
-    logger.atInfo().log("setAction " + action);
     if (action == null) {
       throw new NullPointerException("action");
     }
@@ -60,7 +55,6 @@ public class PermissionRule implements Comparable<PermissionRule> {
   }
 
   public void setDeny() {
-    logger.atInfo().log("setAction setDeny");
     action = Action.DENY;
   }
 
@@ -69,7 +63,6 @@ public class PermissionRule implements Comparable<PermissionRule> {
   }
 
   public void setBlock() {
-    logger.atInfo().log("setAction setBlock");
     action = Action.BLOCK;
   }
 
@@ -116,7 +109,6 @@ public class PermissionRule implements Comparable<PermissionRule> {
   }
 
   void mergeFrom(PermissionRule src) {
-    logger.atInfo().log("mergeFrom");
     if (getAction() != src.getAction()) {
       if (getAction() == Action.BLOCK || src.getAction() == Action.BLOCK) {
         setAction(Action.BLOCK);
@@ -218,7 +210,6 @@ public class PermissionRule implements Comparable<PermissionRule> {
   }
 
   public static PermissionRule fromString(String src, boolean mightUseRange) {
-    logger.atInfo().log("setAction fromString >%s<", src);
     final String orig = src;
     final PermissionRule rule = new PermissionRule();
 

@@ -1127,7 +1127,6 @@ public class RefControlTest {
     RefPattern.validate("^refs/heads/*");
     RefPattern.validate("^refs/tags/[0-9a-zA-Z-_.]+");
     RefPattern.validate("refs/heads/review/${username}/*");
-    RefPattern.toRegExp("^refs/heads/users/${username}/(public|private)/.+");
   }
 
   @Test
