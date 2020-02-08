@@ -114,17 +114,16 @@ public abstract class RefPatternMatcher {
         // is not likely to be a valid part of the regex. This later
         // allows the pattern prefix to be clipped, saving time on
         // evaluation.
-        /*
-        String replacement = ":PLACEHOLDER:";
+        
         Map<String, String> params =
             ImmutableMap.of(
-                RefPattern.USERID_SHARDED, replacement,
-                RefPattern.USERNAME, replacement);
+                RefPattern.USERID_SHARDED, "\\$\\{" + RefPattern.USERID_SHARDED + "\\}",
+				RefPattern.USERNAME, "\\$\\{" + RefPattern.USERNAME + "\\}");
         Automaton am = RefPattern.toRegExp(template.replace(params)).toAutomaton();
-        */
-        Automaton am = RefPattern.toRegExp(pattern).toAutomaton();
+        
+        //Automaton am = RefPattern.toRegExp(pattern).toAutomaton();
         String rePrefix = am.getCommonPrefix();
-        prefix = rePrefix.substring(0, rePrefix.indexOf("${"));
+        prefix = rePrefix.substring(1, rePrefix.indexOf("${"));
         logger.atInfo().log("ExpandParameters pattern:%s prefix:%s", pattern, prefix);
       } else {
         prefix = pattern.substring(0, pattern.indexOf("${"));
@@ -134,7 +133,7 @@ public abstract class RefPatternMatcher {
     @Override
     public boolean match(String ref, CurrentUser user) {
       logger.atInfo().log("match4 ENTRY ref:%s prefix:%s pattern:%s", ref, prefix, template.getPattern());
-      if (isRE(template.getPattern())) {
+      if (isRE(ref)) {
         if (!ref.substring(1).startsWith(prefix)) {
           logger.atInfo().log("match4 EXIT1 false");
           return false;

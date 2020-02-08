@@ -80,10 +80,12 @@ public class RefPattern {
   }
 
   public static RegExp toRegExp(String refPattern) {
-	logger.atInfo().log("toRegExp ENTRY refPattern:%s", refPattern);
+    logger.atInfo().log("toRegExp ENTRY refPattern:%s", refPattern);
+    /*
     if (isRE(refPattern)) {
       refPattern = refPattern.substring(1);
     }
+    */
     ParameterizedString template = new ParameterizedString(refPattern);
     Map<String, String> params =
         ImmutableMap.of(
