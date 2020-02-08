@@ -81,11 +81,11 @@ public class RefPattern {
 
   public static RegExp toRegExp(String refPattern) {
     logger.atInfo().log("toRegExp ENTRY refPattern:%s", refPattern);
-    /*
+    
     if (isRE(refPattern)) {
       refPattern = refPattern.substring(1);
     }
-    */
+    
     ParameterizedString template = new ParameterizedString(refPattern);
     Map<String, String> params =
         ImmutableMap.of(
@@ -101,9 +101,13 @@ public class RefPattern {
     if (refPattern.startsWith(AccessSection.REGEX_PREFIX)) {
 	  logger.atInfo().log("validate before shortestExample refPattern:%s", refPattern);
       String shortestEx = shortestExample(refPattern);
+      if (isRE(shortestEx)) {
+		  shortestEx = shortestEx.substring(1);
+	  }
       logger.atInfo().log("validate after shortestExample shortestEx:%s", shortestEx);
       if (!Repository.isValidRefName(shortestEx)) {
         logger.atInfo().log("validate InvalidNameException1");
+        System.err.println("shortestEx:>"+shortestEx+"<");
         throw new InvalidNameException(refPattern);
       }
     } else if (refPattern.equals(AccessSection.ALL)) {

@@ -1124,6 +1124,7 @@ public class RefControlTest {
   @Test
   public void validateRefPatternsOK() throws Exception {
     RefPattern.validate("refs/*");
+    RefPattern.validate("^refs/heads/.+");
     RefPattern.validate("^refs/heads/*");
     RefPattern.validate("^refs/tags/[0-9a-zA-Z-_.]+");
     RefPattern.validate("refs/heads/review/${username}/*");

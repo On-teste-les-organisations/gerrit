@@ -143,11 +143,13 @@ public class PermissionCollection {
         Iterable<SectionMatcher> matcherList, String ref, CurrentUser user) {
       logger.atInfo().log("PermissionCollection filter ENTRY ref:%s", ref);
       try (Timer0.Context ignored = filterLatency.start()) {
+		
         if (isRE(ref)) {
           logger.atInfo().log("PermissionCollection filter callA shortestExample:%s", ref);
           ref = RefPattern.shortestExample(ref);
           logger.atInfo().log("PermissionCollection filter callB shortestExample:%s", ref);
-        } else if (ref.endsWith("/*")) {
+        } else
+        if (ref.endsWith("/*")) {
           ref = ref.substring(0, ref.length() - 1);
         }
 

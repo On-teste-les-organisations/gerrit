@@ -49,10 +49,12 @@ public final class MostSpecificComparator implements Comparator<AccessSection> {
 
   @Override
   public int compare(AccessSection a, AccessSection b) {
+	//System.err.println("COMPARE 2");
     return compare(a.getName(), b.getName());
   }
 
   public int compare(String pattern1, String pattern2) {
+	//System.err.println("COMPARE 1");
     int cmp = distance(pattern1) - distance(pattern2);
     if (cmp == 0) {
       boolean p1_finite = finite(pattern1);
@@ -66,12 +68,17 @@ public final class MostSpecificComparator implements Comparator<AccessSection> {
         cmp = 0;
       }
     }
+    //System.err.println("COMPARE 3");
     if (cmp == 0) {
       cmp = transitions(pattern2) - transitions(pattern1);
     }
+    //System.err.println("COMPARE 4");
     if (cmp == 0) {
       cmp = pattern2.length() - pattern1.length();
     }
+    if(cmp >= 0) {
+		System.err.println("COMPARE 5 pattern1:"+  pattern1 +" pattern2:"+ pattern2);
+	}
     return cmp;
   }
 
