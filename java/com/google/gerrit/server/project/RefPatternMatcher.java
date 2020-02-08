@@ -67,6 +67,9 @@ public abstract class RefPatternMatcher {
 
     @Override
     public boolean match(String ref, CurrentUser user) {
+      if (isRE(ref)) {
+        return ref.substring(1).startsWith(prefix);
+      }
       return ref.startsWith(prefix);
     }
   }
@@ -112,7 +115,11 @@ public abstract class RefPatternMatcher {
 
     @Override
     public boolean match(String ref, CurrentUser user) {
-      if (!ref.startsWith(prefix)) {
+      if (isRE(ref)) {
+        if (!ref.substring(1).startsWith(prefix)) {
+          return false;
+        }
+      } else if (!ref.startsWith(prefix)) {
         return false;
       }
 
@@ -142,6 +149,9 @@ public abstract class RefPatternMatcher {
     }
 
     public boolean matchPrefix(String ref) {
+      if (isRE(ref)) {
+        return ref.substring(1).startsWith(prefix);
+      }
       return ref.startsWith(prefix);
     }
 
