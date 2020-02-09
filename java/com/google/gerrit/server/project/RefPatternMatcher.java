@@ -17,6 +17,7 @@ package com.google.gerrit.server.project;
 import static com.google.common.collect.ImmutableSet.toImmutableSet;
 import static com.google.gerrit.server.project.RefPattern.isRE;
 
+import com.google.common.flogger.FluentLogger;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Streams;
@@ -31,6 +32,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 public abstract class RefPatternMatcher {
+  private static final FluentLogger logger = FluentLogger.forEnclosingClass();
   public static RefPatternMatcher getMatcher(String pattern) {
     if (pattern.contains("${")) {
       return new ExpandParameters(pattern);
@@ -80,6 +82,7 @@ public abstract class RefPatternMatcher {
 
     @Override
     public boolean match(String ref, CurrentUser user) {
+	  logger.atInfo().log("match2 ref:%s pattern.pattern():%s", ref, pattern.pattern());
       return pattern.matcher(ref).matches() || (isRE(ref) && pattern.pattern().equals(ref));
     }
   }
@@ -112,6 +115,7 @@ public abstract class RefPatternMatcher {
 
     @Override
     public boolean match(String ref, CurrentUser user) {
+	  logger.atInfo().log("match1 ref:%s prefix:%s", ref, prefix);
       if (isRE(ref)) {
         if (!ref.substring(1).startsWith(prefix)) {
           return false;
