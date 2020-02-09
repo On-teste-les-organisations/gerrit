@@ -84,6 +84,7 @@ public class PermissionCollection {
      */
     private static boolean filterRefMatchingSections(
         Iterable<SectionMatcher> matcherList,
+        String shortestEx,
         String ref,
         CurrentUser user,
         Map<AccessSection, Project.NameKey> out) {
@@ -101,7 +102,7 @@ public class PermissionCollection {
         // that will never be shared with non-user references, and the per-user
         // references are usually less frequent than the non-user references.
         if (sm.getMatcher() instanceof ExpandParameters) {
-          if (!((ExpandParameters) sm.getMatcher()).matchPrefix(ref)) {
+          if (!((ExpandParameters) sm.getMatcher()).matchPrefix(shortestEx)) {
             continue;
           }
           perUser = true;
@@ -130,15 +131,16 @@ public class PermissionCollection {
     PermissionCollection filter(
         Iterable<SectionMatcher> matcherList, String ref, CurrentUser user) {
       try (Timer0.Context ignored = filterLatency.start()) {
+        String shortestEx = ref;
         if (isRE(ref)) {
-          ref = RefPattern.shortestExample(ref);
+          shortestEx = RefPattern.shortestExample(ref);
         } else if (ref.endsWith("/*")) {
           ref = ref.substring(0, ref.length() - 1);
         }
 
         // LinkedHashMap to maintain input ordering.
         Map<AccessSection, Project.NameKey> sectionToProject = new LinkedHashMap<>();
-        boolean perUser = filterRefMatchingSections(matcherList, ref, user, sectionToProject);
+        boolean perUser = filterRefMatchingSections(matcherList, shortestEx, ref, user, sectionToProject);
         List<AccessSection> sections = Lists.newArrayList(sectionToProject.keySet());
 
         // Sort by ref pattern specificity. For equally specific patterns, the sections from the
