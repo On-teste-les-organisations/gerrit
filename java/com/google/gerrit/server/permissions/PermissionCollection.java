@@ -21,6 +21,7 @@ import static java.util.stream.Collectors.toList;
 
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.Lists;
+import com.google.common.flogger.FluentLogger;
 import com.google.gerrit.common.Nullable;
 import com.google.gerrit.common.data.AccessSection;
 import com.google.gerrit.common.data.Permission;
@@ -55,6 +56,8 @@ import java.util.stream.Collectors;
  * appears in the reference name, and also only if the user is a member of the relevant group.
  */
 public class PermissionCollection {
+  private static final FluentLogger logger = FluentLogger.forEnclosingClass();
+
   @Singleton
   public static class Factory {
     private final SectionSortCache sorter;
@@ -89,7 +92,10 @@ public class PermissionCollection {
         CurrentUser user,
         Map<AccessSection, Project.NameKey> out) {
       boolean perUser = false;
+      logger.atInfo().log(
+          "PermissionCollection filterRefMatchingSections ref:%s shortestEx:%s", ref, shortestEx);
       for (SectionMatcher sm : matcherList) {
+        logger.atInfo().log("PermissionCollection filterRefMatchingSections SectionMatcher");
         // If the matcher has to expand parameters and its prefix matches the
         // reference there is a very good chance the reference is actually user
         // specific, even if the matcher does not match the reference. Since its
@@ -102,12 +108,21 @@ public class PermissionCollection {
         // that will never be shared with non-user references, and the per-user
         // references are usually less frequent than the non-user references.
         if (sm.getMatcher() instanceof ExpandParameters) {
+          logger.atInfo().log(
+              "PermissionCollection filterRefMatchingSections SectionMatcher ExpandParameters");
           if (!((ExpandParameters) sm.getMatcher()).matchPrefix(shortestEx)) {
             continue;
           }
+          logger.atInfo().log(
+              "PermissionCollection filterRefMatchingSections SectionMatcher ExpandParameters perUser");
           perUser = true;
           if (sm.match(ref, user)) {
+            logger.atInfo().log(
+                "PermissionCollection filterRefMatchingSections SectionMatcher ExpandParameters perUser CA MATCH");
             out.put(sm.getSection(), sm.getProject());
+          } else {
+            logger.atInfo().log(
+                "PermissionCollection filterRefMatchingSections SectionMatcher ExpandParameters perUser CA MATCH PAS!!");
           }
         } else if (sm.match(ref, null)) {
           out.put(sm.getSection(), sm.getProject());
@@ -130,6 +145,7 @@ public class PermissionCollection {
      */
     PermissionCollection filter(
         Iterable<SectionMatcher> matcherList, String ref, CurrentUser user) {
+      logger.atInfo().log("PermissionCollection filter ENTRY ref:%s", ref);
       try (Timer0.Context ignored = filterLatency.start()) {
         String shortestEx = ref;
         if (isRE(ref)) {
@@ -141,18 +157,21 @@ public class PermissionCollection {
 
         // LinkedHashMap to maintain input ordering.
         Map<AccessSection, Project.NameKey> sectionToProject = new LinkedHashMap<>();
-        boolean perUser = filterRefMatchingSections(matcherList, shortestEx, ref, user, sectionToProject);
+        boolean perUser =
+            filterRefMatchingSections(matcherList, shortestEx, ref, user, sectionToProject);
+        logger.atInfo().log("PermissionCollection filter MAIN1 ref:%s", ref);
         List<AccessSection> sections = Lists.newArrayList(sectionToProject.keySet());
 
         // Sort by ref pattern specificity. For equally specific patterns, the sections from the
         // project closer to the current one come first.
+        logger.atInfo().log("PermissionCollection filter MAIN2 ref:%s", ref);
         sorter.sort(ref, sections);
 
         // For block permissions, we want a different order: first, we want to go from parent to
         // child.
         List<Map.Entry<AccessSection, Project.NameKey>> accessDescending =
             Lists.reverse(Lists.newArrayList(sectionToProject.entrySet()));
-
+        logger.atInfo().log("PermissionCollection filter MAIN3 ref:%s", ref);
         Map<Project.NameKey, List<AccessSection>> accessByProject =
             accessDescending.stream()
                 .collect(
@@ -161,10 +180,13 @@ public class PermissionCollection {
                         LinkedHashMap::new,
                         mapping(Map.Entry::getKey, toList())));
         // Within each project, sort by ref specificity.
+        logger.atInfo().log("PermissionCollection filter MAIN4 ref:%s", ref);
         for (List<AccessSection> secs : accessByProject.values()) {
           sorter.sort(ref, secs);
         }
-
+        logger.atInfo().log(
+            "PermissionCollection filter EXIT new PermissionCollection:%s perUser:%s",
+            ref, perUser);
         return new PermissionCollection(
             Lists.newArrayList(accessByProject.values()), sections, perUser);
       }
@@ -193,13 +215,20 @@ public class PermissionCollection {
 
   /** calculates permissions for ALLOW processing. */
   private List<PermissionRule> calculateAllowRules(String permName) {
+    logger.atInfo().log("calculateAllowRules ENTRY permName:" + permName);
     Set<SeenRule> seen = new HashSet<>();
 
     List<PermissionRule> r = new ArrayList<>();
+    int mycounter = 0;
     for (AccessSection s : accessSectionsUpward) {
       Permission p = s.getPermission(permName);
       if (p == null) {
         continue;
+      }
+      mycounter = mycounter + 1;
+      for (PermissionRule pr : p.getRules()) {
+        logger.atInfo().log(
+            "calculateAllowRules " + mycounter + " permName:" + permName + " pr:" + pr);
       }
       for (PermissionRule pr : p.getRules()) {
         SeenRule sr = SeenRule.create(s, pr);
@@ -227,6 +256,7 @@ public class PermissionCollection {
         break;
       }
     }
+    logger.atInfo().log("calculateAllowRules EXIT permName:" + permName);
     return r;
   }
 

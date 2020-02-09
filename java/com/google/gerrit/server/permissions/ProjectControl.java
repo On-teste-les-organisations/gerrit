@@ -21,6 +21,7 @@ import static com.google.gerrit.entities.RefNames.REFS_TAGS;
 import static com.google.gerrit.server.util.MagicBranch.NEW_CHANGE;
 
 import com.google.common.collect.Sets;
+import com.google.common.flogger.FluentLogger;
 import com.google.gerrit.common.data.AccessSection;
 import com.google.gerrit.common.data.Permission;
 import com.google.gerrit.common.data.PermissionRule;
@@ -61,6 +62,8 @@ import org.eclipse.jgit.lib.Repository;
 
 /** Access control management for a user accessing a project's data. */
 class ProjectControl {
+  private static final FluentLogger logger = FluentLogger.forEnclosingClass();
+
   interface Factory {
     ProjectControl create(CurrentUser who, ProjectState ps);
   }
@@ -116,15 +119,19 @@ class ProjectControl {
   }
 
   public RefControl controlForRef(String refName) {
+    logger.atInfo().log("controlForRef ENTRY refName:%s", refName);
     if (refControls == null) {
       refControls = new HashMap<>();
     }
     RefControl ctl = refControls.get(refName);
     if (ctl == null) {
+      logger.atInfo().log(
+          "controlForRef new RefControl refName:%s user:%s", refName, user.getLoggableName());
       PermissionCollection relevant = permissionFilter.filter(access(), refName, user);
       ctl = new RefControl(this, refName, relevant);
       refControls.put(refName, ctl);
     }
+    logger.atInfo().log("controlForRef EXIT refName:%s", refName);
     return ctl;
   }
 
@@ -169,6 +176,7 @@ class ProjectControl {
   }
 
   boolean allRefsAreVisible(Set<String> ignore) {
+    logger.atInfo().log("allRefsAreVisible");
     return user.isInternalUser() || canPerformOnAllRefs(Permission.READ, ignore);
   }
 
@@ -244,6 +252,7 @@ class ProjectControl {
   }
 
   private boolean canPerformOnAnyRef(String permissionName) {
+    logger.atInfo().log("canPerformOnAnyRef ENTRY " + permissionName);
     for (SectionMatcher matcher : access()) {
       AccessSection section = matcher.getSection();
       Permission permission = section.getPermission(permissionName);
@@ -253,15 +262,19 @@ class ProjectControl {
 
       Boolean can = canPerform(permissionName, section, permission);
       if (can != null) {
+        logger.atInfo().log("canPerformOnAnyRef return:" + can);
         return can;
       }
     }
-
+    logger.atInfo().log("canPerformOnAnyRef EXIT false");
     return false;
   }
 
   private Boolean canPerform(String permissionName, AccessSection section, Permission permission) {
+    logger.atInfo().log("canPerform permissionName:" + permissionName);
     for (PermissionRule rule : permission.getRules()) {
+      logger.atInfo().log(
+          "canPerform:" + rule.isBlock() + "/" + rule.isDeny() + "/" + (!match(rule)));
       if (rule.isBlock() || rule.isDeny() || !match(rule)) {
         continue;
       }
@@ -281,12 +294,14 @@ class ProjectControl {
   private boolean canPerformOnAllRefs(String permission, Set<String> ignore) {
     boolean canPerform = false;
     Set<String> patterns = allRefPatterns(permission);
+    logger.atInfo().log("canPerformOnAllRefs");
     if (patterns.contains(ALL)) {
       // Only possible if granted on the pattern that
       // matches every possible reference.  Check all
       // patterns also have the permission.
       //
       for (String pattern : patterns) {
+        logger.atInfo().log("canPerformOnAllRefs pattern:%s", pattern);
         if (controlForRef(pattern).canPerform(permission)) {
           canPerform = true;
         } else if (ignore.contains(pattern)) {
@@ -327,6 +342,7 @@ class ProjectControl {
   }
 
   private boolean match(AccountGroup.UUID uuid, boolean isChangeOwner) {
+    logger.atInfo().log("ProjectControl match uuid:" + uuid);
     if (SystemGroupBackend.PROJECT_OWNERS.equals(uuid)) {
       return isDeclaredOwner();
     } else if (SystemGroupBackend.CHANGE_OWNER.equals(uuid)) {
@@ -413,6 +429,7 @@ class ProjectControl {
     }
 
     private boolean can(CoreOrPluginProjectPermission perm) throws PermissionBackendException {
+      logger.atInfo().log("ProjectControl fonction can1");
       if (perm instanceof ProjectPermission) {
         return can((ProjectPermission) perm);
       } else if (perm instanceof PluginProjectPermission) {
@@ -424,11 +441,14 @@ class ProjectControl {
     }
 
     private boolean can(ProjectPermission perm) throws PermissionBackendException {
+      logger.atInfo().log("ProjectControl fonction can2");
       switch (perm) {
         case ACCESS:
+          logger.atInfo().log("ProjectControl fonction can2 ACCESS");
           return user.isInternalUser() || isOwner() || canPerformOnAnyRef(Permission.READ);
 
         case READ:
+          logger.atInfo().log("ProjectControl fonction can2 READ");
           return allRefsAreVisible(Collections.emptySet());
 
         case CREATE_REF:
