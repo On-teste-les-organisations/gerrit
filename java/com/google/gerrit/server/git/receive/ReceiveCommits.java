@@ -1088,19 +1088,19 @@ class ReceiveCommits {
 
       switch (cmd.getType()) {
         case CREATE:
-          parseCreate(cmd);
+          parseCreateRegular(cmd);
           break;
 
         case UPDATE:
-          parseUpdate(cmd);
+          parseUpdateRegular(cmd);
           break;
 
         case DELETE:
-          parseDelete(cmd);
+          parseDeleteRegular(cmd);
           break;
 
         case UPDATE_NONFASTFORWARD:
-          parseRewind(cmd);
+          parseRewindRegular(cmd);
           break;
 
         default:
@@ -1113,13 +1113,13 @@ class ReceiveCommits {
       }
 
       if (isConfig(cmd)) {
-        validateConfigPush(cmd);
+        validateConfigPushRegular(cmd);
       }
     }
   }
 
   /** Validates a push to refs/meta/config, and reject the command if it fails. */
-  private void validateConfigPush(ReceiveCommand cmd) throws PermissionBackendException {
+  private void validateConfigPushRegular(ReceiveCommand cmd) throws PermissionBackendException {
     try (TraceTimer traceTimer = newTimer("validateConfigPush")) {
       logger.atFine().log("Processing %s command", cmd.getRefName());
       try {
@@ -1254,7 +1254,7 @@ class ReceiveCommits {
     }
   }
 
-  private void parseCreate(ReceiveCommand cmd)
+  private void parseCreateRegular(ReceiveCommand cmd)
       throws PermissionBackendException, NoSuchProjectException, IOException {
     try (TraceTimer traceTimer = newTimer("parseCreate")) {
       RevObject obj;
@@ -1293,10 +1293,10 @@ class ReceiveCommits {
     }
   }
 
-  private void parseUpdate(ReceiveCommand cmd) throws PermissionBackendException {
+  private void parseUpdateRegular(ReceiveCommand cmd) throws PermissionBackendException {
     try (TraceTimer traceTimer = TraceContext.newTimer("parseUpdate")) {
       logger.atFine().log("Updating %s", cmd);
-      Optional<AuthException> err = checkRefPermission(cmd, RefPermission.UPDATE);
+      Optional<AuthException> err = checkRefPermission(cmd, RefPermission.UPDATE, true);
       if (!err.isPresent()) {
         if (isHead(cmd) && !isCommit(cmd)) {
           reject(cmd, "head must point to commit");
@@ -1330,7 +1330,7 @@ class ReceiveCommits {
     return false;
   }
 
-  private void parseDelete(ReceiveCommand cmd) throws PermissionBackendException {
+  private void parseDeleteRegular(ReceiveCommand cmd) throws PermissionBackendException {
     try (TraceTimer traceTimer = newTimer("parseDelete")) {
       logger.atFine().log("Deleting %s", cmd);
       if (cmd.getRefName().startsWith(REFS_CHANGES)) {
@@ -1341,7 +1341,7 @@ class ReceiveCommits {
         reject(cmd, "cannot delete project configuration");
       }
 
-      Optional<AuthException> err = checkRefPermission(cmd, RefPermission.DELETE);
+      Optional<AuthException> err = checkRefPermission(cmd, RefPermission.DELETE, true);
       if (!err.isPresent()) {
         validRefOperation(cmd);
       } else {
@@ -1350,7 +1350,7 @@ class ReceiveCommits {
     }
   }
 
-  private void parseRewind(ReceiveCommand cmd) throws PermissionBackendException {
+  private void parseRewindRegular(ReceiveCommand cmd) throws PermissionBackendException {
     try (TraceTimer traceTimer = newTimer("parseRewind")) {
       try {
         receivePack.getRevWalk().parseCommit(cmd.getNewId());
@@ -1370,7 +1370,7 @@ class ReceiveCommits {
         return;
       }
 
-      Optional<AuthException> err = checkRefPermission(cmd, RefPermission.FORCE_UPDATE);
+      Optional<AuthException> err = checkRefPermission(cmd, RefPermission.FORCE_UPDATE, true);
       if (err.isPresent()) {
         rejectProhibited(cmd, err.get());
       }
@@ -1379,11 +1379,22 @@ class ReceiveCommits {
 
   private Optional<AuthException> checkRefPermission(ReceiveCommand cmd, RefPermission perm)
       throws PermissionBackendException {
-    return checkRefPermission(permissions.ref(cmd.getRefName()), perm);
+    return checkRefPermission(cmd, perm, false);
+  }
+
+  private Optional<AuthException> checkRefPermission(
+      ReceiveCommand cmd, RefPermission perm, boolean regular) throws PermissionBackendException {
+    return checkRefPermission(permissions.ref(cmd.getRefName()), perm, regular);
   }
 
   private Optional<AuthException> checkRefPermission(
       PermissionBackend.ForRef forRef, RefPermission perm) throws PermissionBackendException {
+    return checkRefPermission(forRef, perm, false);
+  }
+
+  private Optional<AuthException> checkRefPermission(
+      PermissionBackend.ForRef forRef, RefPermission perm, boolean regular)
+      throws PermissionBackendException {
     try {
       forRef.check(perm);
       return Optional.empty();
@@ -3237,7 +3248,7 @@ class ReceiveCommits {
 
           BranchCommitValidator.Result validationResult =
               validator.validateCommit(
-                  walk.getObjectReader(), cmd, c, false, rejectCommits, null, skipValidation);
+                  walk.getObjectReader(), cmd, c, false, rejectCommits, null, skipValidation, true);
           messages.addAll(validationResult.messages());
           if (!validationResult.isValid()) {
             break;

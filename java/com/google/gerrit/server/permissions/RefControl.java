@@ -158,12 +158,20 @@ class RefControl {
     return new ForRefImpl();
   }
 
-  private boolean canUpload() {
+  private boolean canUpload(boolean regular) {
+    logger.atFine().log("------------- canUpload regular:%s   (RAJOUT refs/for/)", regular);
+    if (regular) {
+      return projectControl.controlForRef(refName).canPerform(Permission.PUSH);
+    }
     return projectControl.controlForRef("refs/for/" + refName).canPerform(Permission.PUSH);
   }
 
   /** @return true if this user can submit merge patch sets to this ref */
-  private boolean canUploadMerges() {
+  private boolean canUploadMerges(boolean regular) {
+    logger.atFine().log("------------- canUploadMerges regular:%s   (RAJOUT refs/for/)", regular);
+    if (regular) {
+      return projectControl.controlForRef(refName).canPerform(Permission.PUSH_MERGE);
+    }
     return projectControl.controlForRef("refs/for/" + refName).canPerform(Permission.PUSH_MERGE);
   }
 
@@ -466,7 +474,13 @@ class RefControl {
 
     @Override
     public void check(RefPermission perm) throws AuthException, PermissionBackendException {
-      if (!can(perm)) {
+      check(perm, false);
+    }
+
+    @Override
+    public void check(RefPermission perm, boolean regular)
+        throws AuthException, PermissionBackendException {
+      if (!can(perm, regular)) {
         PermissionDeniedException pde = new PermissionDeniedException(perm, refName);
         switch (perm) {
           case UPDATE:
@@ -557,7 +571,7 @@ class RefControl {
         throws PermissionBackendException {
       EnumSet<RefPermission> ok = EnumSet.noneOf(RefPermission.class);
       for (RefPermission perm : permSet) {
-        if (can(perm)) {
+        if (can(perm, false)) {
           ok.add(perm);
         }
       }
@@ -569,7 +583,7 @@ class RefControl {
       return new PermissionBackendCondition.ForRef(this, perm, getUser());
     }
 
-    private boolean can(RefPermission perm) throws PermissionBackendException {
+    private boolean can(RefPermission perm, boolean regular) throws PermissionBackendException {
       switch (perm) {
         case READ:
           return isVisible();
@@ -592,10 +606,10 @@ class RefControl {
         case FORGE_SERVER:
           return canForgeGerritServerIdentity();
         case MERGE:
-          return canUploadMerges();
+          return canUploadMerges(regular);
 
         case CREATE_CHANGE:
-          return canUpload();
+          return canUpload(regular);
 
         case CREATE_TAG:
         case CREATE_SIGNED_TAG:
@@ -618,7 +632,7 @@ class RefControl {
           return canForgeAuthor()
               && canForgeCommitter()
               && canForgeGerritServerIdentity()
-              && canUploadMerges();
+              && canUploadMerges(regular);
       }
       throw new PermissionBackendException(perm + " unsupported");
     }

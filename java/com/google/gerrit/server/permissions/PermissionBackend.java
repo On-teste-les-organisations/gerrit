@@ -184,8 +184,13 @@ public abstract class PermissionBackend {
       return ref(notes.getChange().getDest()).indexedChange(cd, notes);
     }
 
+    public void check(GlobalOrPluginPermission perm)
+        throws AuthException, PermissionBackendException {
+      check(perm, false);
+    }
+
     /** Verify scoped user can {@code perm}, throwing if denied. */
-    public abstract void check(GlobalOrPluginPermission perm)
+    public abstract void check(GlobalOrPluginPermission perm, boolean regular)
         throws AuthException, PermissionBackendException;
 
     /**
@@ -411,6 +416,9 @@ public abstract class PermissionBackend {
 
     /** Verify scoped user can {@code perm}, throwing if denied. */
     public abstract void check(RefPermission perm) throws AuthException, PermissionBackendException;
+
+    public abstract void check(RefPermission perm, boolean regular)
+        throws AuthException, PermissionBackendException;
 
     /** Filter {@code permSet} to permissions scoped user might be able to perform. */
     public abstract Set<RefPermission> test(Collection<RefPermission> permSet)
