@@ -158,6 +158,7 @@ public abstract class PermissionBackend {
 
     /** Returns an instance scoped for the {@code ref}, and its parent project. */
     public ForRef ref(BranchNameKey ref) {
+	  logger.atFine().log("---------- abstract static class WithUser");
       return project(ref.project()).ref(ref.branch());
     }
 

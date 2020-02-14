@@ -134,6 +134,7 @@ public class BranchCommitValidator {
       throws IOException {
     try (TraceTimer traceTimer = TraceContext.newTimer("BranchCommitValidator#validateCommit")) {
       ImmutableList.Builder<CommitValidationMessage> messages = new ImmutableList.Builder<>();
+      System.err.printf("------------- branch.branch():%s\n", branch.branch());
       try (CommitReceivedEvent receiveEvent =
           new CommitReceivedEvent(cmd, project, branch.branch(), objectReader, commit, user)) {
         CommitValidators validators;
