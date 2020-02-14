@@ -137,6 +137,7 @@ public class CommitValidators {
         throws IOException {
       PermissionBackend.ForRef perm = forProject.ref(branch.branch());
       ProjectState projectState = projectCache.checkedGet(branch.project());
+      logger.atFine().log("before UploadMergesPermissionValidator3 ref:%s", branch.branch());
       return new CommitValidators(
           ImmutableList.of(
               new UploadMergesPermissionValidator(perm),
@@ -170,6 +171,7 @@ public class CommitValidators {
         throws IOException {
       PermissionBackend.ForRef perm = forProject.ref(branch.branch());
       ProjectState projectState = projectCache.checkedGet(branch.project());
+      logger.atFine().log("before UploadMergesPermissionValidator2 ref:%s", branch.branch());
       return new CommitValidators(
           ImmutableList.of(
               new UploadMergesPermissionValidator(perm),
@@ -208,6 +210,7 @@ public class CommitValidators {
       //  - Plugin validators may do things like require certain commit message
       //    formats, so we play it safe and exclude them.
       PermissionBackend.ForRef perm = forProject.ref(branch.branch());
+      logger.atFine().log("before UploadMergesPermissionValidator1 ref:%s", branch.branch());
       return new CommitValidators(
           ImmutableList.of(
               new UploadMergesPermissionValidator(perm),

@@ -78,6 +78,7 @@ public class DefaultPermissionBackend extends PermissionBackend {
 
   @Override
   public WithUser user(CurrentUser user) {
+	logger.atFine().log("------------- user1");
     return new WithUserImpl(requireNonNull(user, "user"));
   }
 
