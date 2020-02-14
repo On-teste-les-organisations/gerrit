@@ -20,6 +20,7 @@ import static com.google.gerrit.common.data.AccessSection.REGEX_PREFIX;
 import static com.google.gerrit.entities.RefNames.REFS_TAGS;
 import static com.google.gerrit.server.util.MagicBranch.NEW_CHANGE;
 
+import com.google.common.flogger.FluentLogger;
 import com.google.common.collect.Sets;
 import com.google.gerrit.common.data.AccessSection;
 import com.google.gerrit.common.data.Permission;
@@ -64,7 +65,7 @@ class ProjectControl {
   interface Factory {
     ProjectControl create(CurrentUser who, ProjectState ps);
   }
-
+  private static final FluentLogger logger = FluentLogger.forEnclosingClass();
   private final Set<AccountGroup.UUID> uploadGroups;
   private final Set<AccountGroup.UUID> receiveGroups;
   private final PermissionBackend permissionBackend;
@@ -116,12 +117,14 @@ class ProjectControl {
   }
 
   public RefControl controlForRef(String refName) {
+	logger.atFine().log("------------- RefControl controlForRef1 refName:%s", refName);
     if (refControls == null) {
       refControls = new HashMap<>();
     }
     RefControl ctl = refControls.get(refName);
     if (ctl == null) {
       PermissionCollection relevant = permissionFilter.filter(access(), refName, user);
+      logger.atFine().log("------------- RefControl controlForRef2 refName:%s", refName);
       ctl = new RefControl(this, refName, relevant);
       refControls.put(refName, ctl);
     }
@@ -350,6 +353,7 @@ class ProjectControl {
 
     @Override
     public ForRef ref(String ref) {
+	  logger.atFine().log("------------- ForRef ref:%s", ref);
       return controlForRef(ref).asForRef();
     }
 

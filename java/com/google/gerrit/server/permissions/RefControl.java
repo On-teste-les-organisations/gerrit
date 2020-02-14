@@ -155,6 +155,7 @@ class RefControl {
   }
 
   ForRef asForRef() {
+	logger.atFine().log("------------- ForRef asForRef");
     return new ForRefImpl();
   }
 
@@ -582,6 +583,7 @@ class RefControl {
     }
 
     private boolean can(RefPermission perm, boolean regular) throws PermissionBackendException {
+      logger.atFine().log("############## can regular:%s", regular);
       switch (perm) {
         case READ:
           return isVisible();
