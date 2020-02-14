@@ -631,7 +631,9 @@ class ReceiveCommits {
 
     try {
       if (!regularCommands.isEmpty()) {
+		logger.atFine().log("============================= BEFORE handleRegularCommands");
         handleRegularCommands(regularCommands, progress);
+        logger.atFine().log("============================= AFTER handleRegularCommands");
         return;
       }
 
