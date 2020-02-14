@@ -15,6 +15,7 @@
 package com.google.gerrit.acceptance.rest.change;
 
 import static com.google.common.truth.Truth.assertThat;
+import static com.google.gerrit.acceptance.testsuite.project.TestProjectUpdate.allow;
 import static com.google.gerrit.acceptance.testsuite.project.TestProjectUpdate.block;
 import static com.google.gerrit.common.data.Permission.READ;
 import static com.google.gerrit.entities.RefNames.changeMetaRef;
@@ -32,6 +33,7 @@ import com.google.gerrit.acceptance.UseClockStep;
 import com.google.gerrit.acceptance.UseSystemTime;
 import com.google.gerrit.acceptance.testsuite.project.ProjectOperations;
 import com.google.gerrit.acceptance.testsuite.request.RequestScopeOperations;
+import com.google.gerrit.common.data.Permission;
 import com.google.gerrit.entities.BranchNameKey;
 import com.google.gerrit.entities.Change;
 import com.google.gerrit.entities.RefNames;
@@ -361,6 +363,11 @@ public class CreateChangeIT extends AbstractDaemonTest {
 
   @Test
   public void createMergeChange() throws Exception {
+    projectOperations
+        .project(project)
+        .forUpdate()
+        .add(allow(Permission.PUSH_MERGE).ref("refs/heads/branchA").group(REGISTERED_USERS))
+        .update();
     changeInTwoBranches("branchA", "a.txt", "branchB", "b.txt");
     ChangeInput in = newMergeChangeInput("branchA", "branchB", "");
     assertCreateSucceeds(in);
@@ -368,6 +375,11 @@ public class CreateChangeIT extends AbstractDaemonTest {
 
   @Test
   public void createMergeChange_Conflicts() throws Exception {
+    projectOperations
+        .project(project)
+        .forUpdate()
+        .add(allow(Permission.PUSH_MERGE).ref("refs/heads/branchA").group(REGISTERED_USERS))
+        .update();
     changeInTwoBranches("branchA", "shared.txt", "branchB", "shared.txt");
     ChangeInput in = newMergeChangeInput("branchA", "branchB", "");
     assertCreateFails(in, RestApiException.class, "merge conflict");
@@ -375,6 +387,11 @@ public class CreateChangeIT extends AbstractDaemonTest {
 
   @Test
   public void createMergeChange_Conflicts_Ours() throws Exception {
+    projectOperations
+        .project(project)
+        .forUpdate()
+        .add(allow(Permission.PUSH_MERGE).ref("refs/heads/branchA").group(REGISTERED_USERS))
+        .update();
     changeInTwoBranches("branchA", "shared.txt", "branchB", "shared.txt");
     ChangeInput in = newMergeChangeInput("branchA", "branchB", "ours");
     assertCreateSucceeds(in);
@@ -383,6 +400,7 @@ public class CreateChangeIT extends AbstractDaemonTest {
   @Test
   public void createMergeChangeFailsWithConflictIfThereAreTooManyCommonPredecessors()
       throws Exception {
+
     // Create an initial commit in master.
     Result initialCommit =
         pushFactory
@@ -411,6 +429,13 @@ public class CreateChangeIT extends AbstractDaemonTest {
     String branchB = "branchB";
     createBranch(BranchNameKey.create(project, branchA));
     createBranch(BranchNameKey.create(project, branchB));
+
+    projectOperations
+        .project(project)
+        .forUpdate()
+        .add(allow(Permission.PUSH_MERGE).ref("refs/heads/branchA").group(REGISTERED_USERS))
+        .add(allow(Permission.PUSH_MERGE).ref("refs/heads/branchB").group(REGISTERED_USERS))
+        .update();
 
     // Push an octopus merge to both of the branches.
     Result octopusA =
@@ -488,6 +513,11 @@ public class CreateChangeIT extends AbstractDaemonTest {
 
   @Test
   public void onlyContentMerged() throws Exception {
+    projectOperations
+        .project(project)
+        .forUpdate()
+        .add(allow(Permission.PUSH_MERGE).ref("refs/heads/master").group(REGISTERED_USERS))
+        .update();
     testRepo
         .branch("HEAD")
         .commit()
@@ -563,6 +593,11 @@ public class CreateChangeIT extends AbstractDaemonTest {
 
   @Test
   public void createMergeChangeOnNonExistingBranchNotPossible() throws Exception {
+    projectOperations
+        .project(project)
+        .forUpdate()
+        .add(allow(Permission.PUSH_MERGE).ref("refs/heads/foo").group(REGISTERED_USERS))
+        .update();
     requestScopeOperations.setApiUser(user.id());
     ChangeInput input = newMergeChangeInput("foo", "master", "");
     input.newBranch = true;

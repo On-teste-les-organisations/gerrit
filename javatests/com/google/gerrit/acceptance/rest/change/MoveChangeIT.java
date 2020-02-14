@@ -16,6 +16,7 @@ package com.google.gerrit.acceptance.rest.change;
 
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.gerrit.acceptance.GitUtil.pushHead;
+import static com.google.gerrit.acceptance.testsuite.project.TestProjectUpdate.allow;
 import static com.google.gerrit.acceptance.testsuite.project.TestProjectUpdate.allowLabel;
 import static com.google.gerrit.acceptance.testsuite.project.TestProjectUpdate.block;
 import static com.google.gerrit.server.group.SystemGroupBackend.REGISTERED_USERS;
@@ -150,6 +151,11 @@ public class MoveChangeIT extends AbstractDaemonTest {
 
   @Test
   public void moveMergeCommitChange() throws Exception {
+    projectOperations
+        .project(project)
+        .forUpdate()
+        .add(allow(Permission.PUSH_MERGE).ref("refs/heads/master").group(REGISTERED_USERS))
+        .update();
     // Move a change which has a merge commit as the current PS
     // Create a merge commit and push for review
     PushOneCommit.Result r1 = createChange();

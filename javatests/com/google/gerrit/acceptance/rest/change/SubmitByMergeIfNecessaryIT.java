@@ -438,6 +438,12 @@ public class SubmitByMergeIfNecessaryIT extends AbstractSubmitByMerge {
 
   @Test
   public void gerritWorkflow() throws Throwable {
+    projectOperations
+        .project(project)
+        .forUpdate()
+        .add(allow(Permission.PUSH_MERGE).ref("refs/heads/master").group(REGISTERED_USERS))
+        .update();
+
     RevCommit initialHead = projectOperations.project(project).getHead("master");
 
     // We'll setup a master and a stable branch.

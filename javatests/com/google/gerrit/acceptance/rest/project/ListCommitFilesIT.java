@@ -17,18 +17,25 @@ package com.google.gerrit.acceptance.rest.project;
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.gerrit.acceptance.GitUtil.getChangeId;
 import static com.google.gerrit.acceptance.GitUtil.pushHead;
+import static com.google.gerrit.acceptance.testsuite.project.TestProjectUpdate.allow;
+import static com.google.gerrit.server.group.SystemGroupBackend.REGISTERED_USERS;
 
 import com.google.gerrit.acceptance.AbstractDaemonTest;
 import com.google.gerrit.acceptance.PushOneCommit;
 import com.google.gerrit.acceptance.RestResponse;
+import com.google.gerrit.acceptance.testsuite.project.ProjectOperations;
+import com.google.gerrit.common.data.Permission;
 import com.google.gerrit.extensions.common.FileInfo;
 import com.google.gson.reflect.TypeToken;
+import com.google.inject.Inject;
 import java.lang.reflect.Type;
 import java.util.Map;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.junit.Test;
 
 public class ListCommitFilesIT extends AbstractDaemonTest {
+  @Inject private ProjectOperations projectOperations;
+
   private static String SUBJECT_1 = "subject 1";
   private static String SUBJECT_2 = "subject 2";
   private static String FILE_A = "a.txt";
@@ -60,6 +67,11 @@ public class ListCommitFilesIT extends AbstractDaemonTest {
 
   @Test
   public void listMergeCommitFiles() throws Exception {
+    projectOperations
+        .project(project)
+        .forUpdate()
+        .add(allow(Permission.PUSH_MERGE).ref("refs/heads/master").group(REGISTERED_USERS))
+        .update();
     PushOneCommit.Result result = createMergeCommitChange("refs/for/master");
 
     RestResponse r =

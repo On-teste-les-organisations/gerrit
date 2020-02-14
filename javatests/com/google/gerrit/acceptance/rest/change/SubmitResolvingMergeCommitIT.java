@@ -16,11 +16,16 @@ package com.google.gerrit.acceptance.rest.change;
 
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.TruthJUnit.assume;
+import static com.google.gerrit.acceptance.testsuite.project.TestProjectUpdate.allow;
+import static com.google.gerrit.server.group.SystemGroupBackend.ANONYMOUS_USERS;
+import static com.google.gerrit.server.group.SystemGroupBackend.REGISTERED_USERS;
 
 import com.google.common.collect.ImmutableList;
 import com.google.gerrit.acceptance.AbstractDaemonTest;
 import com.google.gerrit.acceptance.NoHttpd;
 import com.google.gerrit.acceptance.PushOneCommit;
+import com.google.gerrit.acceptance.testsuite.project.ProjectOperations;
+import com.google.gerrit.common.data.Permission;
 import com.google.gerrit.entities.Project;
 import com.google.gerrit.extensions.client.ChangeStatus;
 import com.google.gerrit.server.permissions.PermissionBackendException;
@@ -46,6 +51,7 @@ import org.junit.Test;
 @NoHttpd
 public class SubmitResolvingMergeCommitIT extends AbstractDaemonTest {
   @Inject private Provider<MergeSuperSet> mergeSuperSet;
+  @Inject private ProjectOperations projectOperations;
 
   @Inject private Submit submit;
 
@@ -65,6 +71,11 @@ public class SubmitResolvingMergeCommitIT extends AbstractDaemonTest {
       G has a conflict with C and is resolved in M which is a merge
       commit of H and D.
     */
+    projectOperations
+        .project(project)
+        .forUpdate()
+        .add(allow(Permission.PUSH_MERGE).ref("refs/heads/master").group(REGISTERED_USERS))
+        .update();
 
     PushOneCommit.Result a = createChange("A");
     PushOneCommit.Result b =
@@ -122,6 +133,11 @@ public class SubmitResolvingMergeCommitIT extends AbstractDaemonTest {
       F is a merge commit of E and B and resolves any conflict.
       However G is conflicting with C.
     */
+    projectOperations
+        .project(project)
+        .forUpdate()
+        .add(allow(Permission.PUSH_MERGE).ref("refs/heads/master").group(REGISTERED_USERS))
+        .update();
 
     PushOneCommit.Result a = createChange("A");
     PushOneCommit.Result b =
@@ -188,6 +204,17 @@ public class SubmitResolvingMergeCommitIT extends AbstractDaemonTest {
     gApi.projects().create(project2Name);
     TestRepository<InMemoryRepository> project1 = cloneProject(Project.nameKey(project1Name));
     TestRepository<InMemoryRepository> project2 = cloneProject(Project.nameKey(project2Name));
+
+    projectOperations
+        .project(Project.nameKey(project1Name))
+        .forUpdate()
+        .add(allow(Permission.PUSH_MERGE).ref("refs/heads/master").group(ANONYMOUS_USERS))
+        .update();
+    projectOperations
+        .project(Project.nameKey(project2Name))
+        .forUpdate()
+        .add(allow(Permission.PUSH_MERGE).ref("refs/heads/master").group(ANONYMOUS_USERS))
+        .update();
 
     PushOneCommit.Result a = createChange(project1, "A");
     PushOneCommit.Result b =
@@ -276,7 +303,11 @@ public class SubmitResolvingMergeCommitIT extends AbstractDaemonTest {
         B is the target branch, and D should be merged with B, but one
         of C conflicts with B
     */
-
+    projectOperations
+        .project(project)
+        .forUpdate()
+        .add(allow(Permission.PUSH_MERGE).ref("refs/heads/master").group(ANONYMOUS_USERS))
+        .update();
     PushOneCommit.Result a = createChange("A");
     PushOneCommit.Result b =
         createChange("B", "new.txt", "No conflict line", ImmutableList.of(a.getCommit()));

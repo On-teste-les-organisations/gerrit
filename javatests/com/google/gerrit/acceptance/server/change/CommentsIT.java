@@ -18,6 +18,8 @@ import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth8.assertThat;
 import static com.google.gerrit.acceptance.PushOneCommit.FILE_NAME;
 import static com.google.gerrit.acceptance.PushOneCommit.SUBJECT;
+import static com.google.gerrit.acceptance.testsuite.project.TestProjectUpdate.allow;
+import static com.google.gerrit.server.group.SystemGroupBackend.REGISTERED_USERS;
 import static com.google.gerrit.testing.GerritJUnit.assertThrows;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toList;
@@ -29,7 +31,9 @@ import com.google.common.collect.Lists;
 import com.google.gerrit.acceptance.AbstractDaemonTest;
 import com.google.gerrit.acceptance.NoHttpd;
 import com.google.gerrit.acceptance.PushOneCommit;
+import com.google.gerrit.acceptance.testsuite.project.ProjectOperations;
 import com.google.gerrit.acceptance.testsuite.request.RequestScopeOperations;
+import com.google.gerrit.common.data.Permission;
 import com.google.gerrit.entities.Change;
 import com.google.gerrit.entities.Patch;
 import com.google.gerrit.entities.RefNames;
@@ -83,6 +87,7 @@ public class CommentsIT extends AbstractDaemonTest {
   @Inject private Provider<ChangesCollection> changes;
   @Inject private Provider<PostReview> postReview;
   @Inject private RequestScopeOperations requestScopeOperations;
+  @Inject private ProjectOperations projectOperations;
 
   private final Integer[] lines = {0, 1};
 
@@ -124,6 +129,12 @@ public class CommentsIT extends AbstractDaemonTest {
 
   @Test
   public void createDraftOnMergeCommitChange() throws Exception {
+    projectOperations
+        .project(project)
+        .forUpdate()
+        .add(allow(Permission.PUSH_MERGE).ref("refs/heads/master").group(REGISTERED_USERS))
+        .update();
+
     for (Integer line : lines) {
       PushOneCommit.Result r = createMergeCommitChange("refs/for/master");
       String changeId = r.getChangeId();
@@ -229,6 +240,12 @@ public class CommentsIT extends AbstractDaemonTest {
 
   @Test
   public void postCommentOnMergeCommitChange() throws Exception {
+    projectOperations
+        .project(project)
+        .forUpdate()
+        .add(allow(Permission.PUSH_MERGE).ref("refs/heads/master").group(REGISTERED_USERS))
+        .update();
+
     for (Integer line : lines) {
       String file = "foo";
       PushOneCommit.Result r = createMergeCommitChange("refs/for/master", file);
@@ -274,6 +291,11 @@ public class CommentsIT extends AbstractDaemonTest {
 
   @Test
   public void postCommentOnCommitMessageOnAutoMerge() throws Exception {
+    projectOperations
+        .project(project)
+        .forUpdate()
+        .add(allow(Permission.PUSH_MERGE).ref("refs/heads/master").group(REGISTERED_USERS))
+        .update();
     PushOneCommit.Result r = createMergeCommitChange("refs/for/master");
     ReviewInput input = new ReviewInput();
     CommentInput c = newComment(Patch.COMMIT_MSG, Side.PARENT, 0, "comment on auto-merge", false);

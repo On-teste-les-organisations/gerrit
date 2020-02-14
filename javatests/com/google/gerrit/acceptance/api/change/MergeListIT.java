@@ -15,8 +15,10 @@
 package com.google.gerrit.acceptance.api.change;
 
 import static com.google.common.truth.Truth.assertThat;
+import static com.google.gerrit.acceptance.testsuite.project.TestProjectUpdate.allow;
 import static com.google.gerrit.entities.Patch.MERGE_LIST;
 import static com.google.gerrit.git.ObjectIds.abbreviateName;
+import static com.google.gerrit.server.group.SystemGroupBackend.REGISTERED_USERS;
 import static com.google.gerrit.testing.GerritJUnit.assertThrows;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.eclipse.jgit.lib.Constants.HEAD;
@@ -26,12 +28,15 @@ import com.google.common.collect.ImmutableMap;
 import com.google.gerrit.acceptance.AbstractDaemonTest;
 import com.google.gerrit.acceptance.NoHttpd;
 import com.google.gerrit.acceptance.PushOneCommit;
+import com.google.gerrit.acceptance.testsuite.project.ProjectOperations;
 import com.google.gerrit.common.RawInputUtil;
+import com.google.gerrit.common.data.Permission;
 import com.google.gerrit.extensions.api.changes.RevisionApi;
 import com.google.gerrit.extensions.common.CommitInfo;
 import com.google.gerrit.extensions.common.DiffInfo;
 import com.google.gerrit.extensions.restapi.BinaryResult;
 import com.google.gerrit.extensions.restapi.ResourceConflictException;
+import com.google.inject.Inject;
 import java.io.ByteArrayOutputStream;
 import java.util.List;
 import java.util.Set;
@@ -50,8 +55,16 @@ public class MergeListIT extends AbstractDaemonTest {
   private RevCommit parent2;
   private RevCommit grandParent2;
 
+  @Inject private ProjectOperations projectOperations;
+
   @Before
   public void setup() throws Exception {
+    projectOperations
+        .project(project)
+        .forUpdate()
+        .add(allow(Permission.PUSH_MERGE).ref("refs/heads/master").group(REGISTERED_USERS))
+        .update();
+
     ObjectId initial = repo().exactRef(HEAD).getLeaf().getObjectId();
 
     PushOneCommit.Result gp1 =

@@ -202,6 +202,7 @@ import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.transport.PushResult;
+import org.junit.Before;
 import org.junit.Test;
 
 @NoHttpd
@@ -227,6 +228,15 @@ public class ChangeIT extends AbstractDaemonTest {
   @Inject
   @Named("diff_summary")
   private Cache<DiffSummaryKey, DiffSummary> diffSummaryCache;
+
+  @Before
+  public void setup() throws Exception {
+    projectOperations
+        .project(project)
+        .forUpdate()
+        .add(allow(Permission.PUSH_MERGE).ref("refs/heads/master").group(REGISTERED_USERS))
+        .update();
+  }
 
   @Test
   public void get() throws Exception {

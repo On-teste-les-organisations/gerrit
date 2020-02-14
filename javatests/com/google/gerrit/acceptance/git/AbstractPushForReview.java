@@ -175,6 +175,7 @@ public abstract class AbstractPushForReview extends AbstractDaemonTest {
                 .ref("refs/heads/*")
                 .group(adminGroupUuid())
                 .range(0, 1))
+        .add(allow(Permission.PUSH_MERGE).ref("refs/heads/master").group(REGISTERED_USERS))
         .update();
   }
 

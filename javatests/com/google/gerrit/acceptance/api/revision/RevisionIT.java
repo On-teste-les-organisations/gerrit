@@ -115,6 +115,7 @@ import org.eclipse.jgit.lib.PersonIdent;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.transport.RefSpec;
+import org.junit.Before;
 import org.junit.Test;
 
 public class RevisionIT extends AbstractDaemonTest {
@@ -122,6 +123,15 @@ public class RevisionIT extends AbstractDaemonTest {
   @Inject private ProjectOperations projectOperations;
   @Inject private RequestScopeOperations requestScopeOperations;
   @Inject private ExtensionRegistry extensionRegistry;
+
+  @Before
+  public void setup() throws Exception {
+    projectOperations
+        .project(project)
+        .forUpdate()
+        .add(allow(Permission.PUSH_MERGE).ref("refs/heads/master").group(REGISTERED_USERS))
+        .update();
+  }
 
   @Test
   public void reviewTriplet() throws Exception {
@@ -663,6 +673,12 @@ public class RevisionIT extends AbstractDaemonTest {
 
   @Test
   public void cherryPickMergeRelativeToDefaultParent() throws Exception {
+    projectOperations
+        .project(project)
+        .forUpdate()
+        .add(allow(Permission.PUSH_MERGE).ref("refs/heads/branchA").group(REGISTERED_USERS))
+        .add(allow(Permission.PUSH_MERGE).ref("refs/heads/branchB").group(REGISTERED_USERS))
+        .update();
     String parent1FileName = "a.txt";
     String parent2FileName = "b.txt";
     PushOneCommit.Result mergeChangeResult =
@@ -690,6 +706,12 @@ public class RevisionIT extends AbstractDaemonTest {
 
   @Test
   public void cherryPickMergeRelativeToSpecificParent() throws Exception {
+    projectOperations
+        .project(project)
+        .forUpdate()
+        .add(allow(Permission.PUSH_MERGE).ref("refs/heads/branchA").group(REGISTERED_USERS))
+        .add(allow(Permission.PUSH_MERGE).ref("refs/heads/branchB").group(REGISTERED_USERS))
+        .update();
     String parent1FileName = "a.txt";
     String parent2FileName = "b.txt";
     PushOneCommit.Result mergeChangeResult =
@@ -718,6 +740,12 @@ public class RevisionIT extends AbstractDaemonTest {
 
   @Test
   public void cherryPickMergeUsingInvalidParent() throws Exception {
+    projectOperations
+        .project(project)
+        .forUpdate()
+        .add(allow(Permission.PUSH_MERGE).ref("refs/heads/branchA").group(REGISTERED_USERS))
+        .add(allow(Permission.PUSH_MERGE).ref("refs/heads/branchB").group(REGISTERED_USERS))
+        .update();
     String parent1FileName = "a.txt";
     String parent2FileName = "b.txt";
     PushOneCommit.Result mergeChangeResult =
@@ -746,6 +774,12 @@ public class RevisionIT extends AbstractDaemonTest {
 
   @Test
   public void cherryPickMergeUsingNonExistentParent() throws Exception {
+    projectOperations
+        .project(project)
+        .forUpdate()
+        .add(allow(Permission.PUSH_MERGE).ref("refs/heads/branchA").group(REGISTERED_USERS))
+        .add(allow(Permission.PUSH_MERGE).ref("refs/heads/branchB").group(REGISTERED_USERS))
+        .update();
     String parent1FileName = "a.txt";
     String parent2FileName = "b.txt";
     PushOneCommit.Result mergeChangeResult =

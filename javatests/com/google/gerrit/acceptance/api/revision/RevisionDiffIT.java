@@ -16,11 +16,13 @@ package com.google.gerrit.acceptance.api.revision;
 
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.TruthJUnit.assume;
+import static com.google.gerrit.acceptance.testsuite.project.TestProjectUpdate.allow;
 import static com.google.gerrit.entities.Patch.COMMIT_MSG;
 import static com.google.gerrit.entities.Patch.MERGE_LIST;
 import static com.google.gerrit.extensions.common.testing.DiffInfoSubject.assertThat;
 import static com.google.gerrit.extensions.common.testing.FileInfoSubject.assertThat;
 import static com.google.gerrit.git.ObjectIds.abbreviateName;
+import static com.google.gerrit.server.group.SystemGroupBackend.REGISTERED_USERS;
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toMap;
 
@@ -31,7 +33,9 @@ import com.google.gerrit.acceptance.AbstractDaemonTest;
 import com.google.gerrit.acceptance.GitUtil;
 import com.google.gerrit.acceptance.PushOneCommit;
 import com.google.gerrit.acceptance.PushOneCommit.Result;
+import com.google.gerrit.acceptance.testsuite.project.ProjectOperations;
 import com.google.gerrit.common.RawInputUtil;
+import com.google.gerrit.common.data.Permission;
 import com.google.gerrit.extensions.api.changes.FileApi;
 import com.google.gerrit.extensions.api.changes.RebaseInput;
 import com.google.gerrit.extensions.api.changes.ReviewInput;
@@ -44,6 +48,7 @@ import com.google.gerrit.extensions.common.FileInfo;
 import com.google.gerrit.extensions.restapi.BinaryResult;
 import com.google.gerrit.extensions.restapi.RestApiException;
 import com.google.gerrit.testing.ConfigSuite;
+import com.google.inject.Inject;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -66,6 +71,8 @@ import org.junit.Test;
 public class RevisionDiffIT extends AbstractDaemonTest {
   // @RunWith(Parameterized.class) can't be used as AbstractDaemonTest is annotated with another
   // runner. Using different configs is a workaround to achieve the same.
+  @Inject private ProjectOperations projectOperations;
+
   private static final String TEST_PARAMETER_MARKER = "test_only_parameter";
   private static final String CURRENT = "current";
   private static final String FILE_NAME = "some_file.txt";
@@ -90,6 +97,12 @@ public class RevisionDiffIT extends AbstractDaemonTest {
 
   @Before
   public void setUp() throws Exception {
+    projectOperations
+        .project(project)
+        .forUpdate()
+        .add(allow(Permission.PUSH_MERGE).ref("refs/heads/master").group(REGISTERED_USERS))
+        .update();
+
     // Reduce flakiness of tests. (If tests aren't fast enough, we would use a fall-back
     // computation, which might yield different results.)
     baseConfig.setString("cache", "diff", "timeout", "1 minute");

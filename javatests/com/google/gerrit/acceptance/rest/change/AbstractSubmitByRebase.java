@@ -179,6 +179,12 @@ public abstract class AbstractSubmitByRebase extends AbstractSubmit {
        |/
        * Initial empty repository
     */
+    projectOperations
+        .project(project)
+        .forUpdate()
+        .add(allow(Permission.PUSH_MERGE).ref("refs/heads/master").group(REGISTERED_USERS))
+        .update();
+
     RevCommit initialHead = projectOperations.project(project).getHead("master");
     PushOneCommit.Result change1 = createChange("Added a", "a.txt", "");
 
