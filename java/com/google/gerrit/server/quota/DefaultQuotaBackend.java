@@ -52,6 +52,7 @@ public class DefaultQuotaBackend implements QuotaBackend {
 
   @Override
   public WithUser user(CurrentUser user) {
+	logger.atFine().log("------------- user2");
     return new WithUser(quotaEnforcers, user);
   }
 
