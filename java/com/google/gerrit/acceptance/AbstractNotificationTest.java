@@ -40,6 +40,7 @@ import com.google.gerrit.mail.Address;
 import com.google.gerrit.mail.EmailHeader;
 import com.google.gerrit.mail.EmailHeader.AddressList;
 import com.google.gerrit.server.account.ProjectWatches.NotifyType;
+import com.google.gerrit.server.util.MagicBranch;
 import com.google.gerrit.testing.FakeEmailSender;
 import com.google.gerrit.testing.FakeEmailSender.Message;
 import com.google.inject.Inject;
@@ -501,13 +502,13 @@ public abstract class AbstractNotificationTest extends AbstractDaemonTest {
   }
 
   protected StagedChange stageReviewableChange() throws Exception {
-    StagedChange sc = new StagedChange("refs/for/master");
+    StagedChange sc = new StagedChange(MagicBranch.NEW_CHANGE + "master");
     sender.clear();
     return sc;
   }
 
   protected StagedChange stageWipChange() throws Exception {
-    StagedChange sc = new StagedChange("refs/for/master%wip");
+    StagedChange sc = new StagedChange(MagicBranch.NEW_CHANGE + "master%wip");
     sender.clear();
     return sc;
   }

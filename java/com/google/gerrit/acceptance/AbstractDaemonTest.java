@@ -124,6 +124,7 @@ import com.google.gerrit.server.query.change.ChangeData;
 import com.google.gerrit.server.query.change.InternalChangeQuery;
 import com.google.gerrit.server.restapi.change.Revisions;
 import com.google.gerrit.server.update.BatchUpdate;
+import com.google.gerrit.server.util.MagicBranch;
 import com.google.gerrit.server.util.git.DelegateSystemReader;
 import com.google.gerrit.testing.ConfigSuite;
 import com.google.gerrit.testing.FakeEmailSender;
@@ -668,7 +669,7 @@ public abstract class AbstractDaemonTest {
   }
 
   protected PushOneCommit.Result createChange() throws Exception {
-    return createChange("refs/for/master");
+    return createChange(MagicBranch.NEW_CHANGE + "master");
   }
 
   protected PushOneCommit.Result createChange(String ref) throws Exception {
@@ -737,13 +738,13 @@ public abstract class AbstractDaemonTest {
       throws Exception {
     assertThat(topic).isNotEmpty();
     return createCommitAndPush(
-        repo, "refs/for/master%topic=" + name(topic), commitMsg, fileName, content);
+        repo, MagicBranch.NEW_CHANGE + "master%topic=" + name(topic), commitMsg, fileName, content);
   }
 
   protected PushOneCommit.Result createChange(String subject, String fileName, String content)
       throws Exception {
     PushOneCommit push = pushFactory.create(admin.newIdent(), testRepo, subject, fileName, content);
-    return push.to("refs/for/master");
+    return push.to(MagicBranch.NEW_CHANGE + "master");
   }
 
   protected PushOneCommit.Result createChange(
@@ -755,7 +756,7 @@ public abstract class AbstractDaemonTest {
       String topic)
       throws Exception {
     PushOneCommit push = pushFactory.create(admin.newIdent(), repo, subject, fileName, content);
-    return push.to("refs/for/" + branch + "%topic=" + name(topic));
+    return push.to(MagicBranch.NEW_CHANGE + branch + "%topic=" + name(topic));
   }
 
   protected BranchApi createBranch(BranchNameKey branch) throws Exception {
@@ -776,7 +777,7 @@ public abstract class AbstractDaemonTest {
       Chars.asList('a', 'b', 'c', 'd', 'e', 'f', 'g', 'h');
 
   protected PushOneCommit.Result amendChange(String changeId) throws Exception {
-    return amendChange(changeId, "refs/for/master", admin, testRepo);
+    return amendChange(changeId, MagicBranch.NEW_CHANGE + "master", admin, testRepo);
   }
 
   protected PushOneCommit.Result amendChange(
@@ -795,7 +796,8 @@ public abstract class AbstractDaemonTest {
 
   protected PushOneCommit.Result amendChange(
       String changeId, String subject, String fileName, String content) throws Exception {
-    return amendChange(changeId, "refs/for/master", admin, testRepo, subject, fileName, content);
+    return amendChange(
+        changeId, MagicBranch.NEW_CHANGE + "master", admin, testRepo, subject, fileName, content);
   }
 
   protected PushOneCommit.Result amendChange(
