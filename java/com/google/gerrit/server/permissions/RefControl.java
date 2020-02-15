@@ -155,25 +155,33 @@ class RefControl {
   }
 
   ForRef asForRef() {
-	logger.atFine().log("------------- ForRef asForRef");
+    logger.atFine().log("------------- ForRef asForRef");
     return new ForRefImpl();
   }
 
   private boolean canUpload(boolean regular) {
     logger.atFine().log("------------- canUpload regular:%s   (RAJOUT refs/for/)", regular);
+
     if (regular) {
       return projectControl.controlForRef(refName).canPerform(Permission.PUSH);
     }
-    return projectControl.controlForRef("refs/for/" + refName).canPerform(Permission.PUSH);
+
+    return projectControl
+        .controlForRef(MagicBranch.NEW_CHANGE + refName)
+        .canPerform(Permission.PUSH);
   }
 
   /** @return true if this user can submit merge patch sets to this ref */
   private boolean canUploadMerges(boolean regular) {
     logger.atFine().log("------------- canUploadMerges regular:%s   (RAJOUT refs/for/)", regular);
+
     if (regular) {
       return projectControl.controlForRef(refName).canPerform(Permission.PUSH_MERGE);
     }
-    return projectControl.controlForRef("refs/for/" + refName).canPerform(Permission.PUSH_MERGE);
+
+    return projectControl
+        .controlForRef(MagicBranch.NEW_CHANGE + refName)
+        .canPerform(Permission.PUSH_MERGE);
   }
 
   /** @return true if the user can update the reference as a fast-forward. */
