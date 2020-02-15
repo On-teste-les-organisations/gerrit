@@ -41,6 +41,7 @@ import com.google.gerrit.server.group.SystemGroupBackend;
 import com.google.gerrit.server.notedb.RepoSequence;
 import com.google.gerrit.server.notedb.Sequences;
 import com.google.gerrit.server.project.ProjectConfig;
+import com.google.gerrit.server.util.MagicBranch;
 import com.google.inject.Inject;
 import java.io.IOException;
 import org.eclipse.jgit.errors.ConfigInvalidException;
@@ -172,8 +173,8 @@ public class AllProjectsCreator {
 
   private void initDefaultAclsForRegisteredUsers(
       AccessSection heads, LabelType codeReviewLabel, ProjectConfig config) {
-    AccessSection refsFor = config.getAccessSection("refs/for/*", true);
-    AccessSection magic = config.getAccessSection("refs/for/" + AccessSection.ALL, true);
+    AccessSection refsFor = config.getAccessSection(MagicBranch.NEW_CHANGE + "*", true);
+    AccessSection magic = config.getAccessSection(MagicBranch.NEW_CHANGE + AccessSection.ALL, true);
 
     grant(config, refsFor, Permission.ADD_PATCH_SET, registered);
     grant(config, heads, codeReviewLabel, -1, 1, registered);
