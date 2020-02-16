@@ -2175,7 +2175,7 @@ class ReceiveCommits {
             logger.atFine().log(
                 "Creating new change for %s even though it is already tracked", name);
           }
-
+          logger.atFine().log("--- call validateCommit 1");
           BranchCommitValidator.Result validationResult =
               validator.validateCommit(
                   receivePack.getRevWalk().getObjectReader(),
@@ -3236,7 +3236,7 @@ class ReceiveCommits {
           if (existing.keySet().contains(c)) {
             continue;
           }
-
+          logger.atFine().log("--- call validateCommit 2");
           BranchCommitValidator.Result validationResult =
               validator.validateCommit(
                   walk.getObjectReader(), cmd, c, false, rejectCommits, null, skipValidation);
