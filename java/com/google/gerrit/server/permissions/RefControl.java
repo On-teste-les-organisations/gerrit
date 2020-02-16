@@ -159,6 +159,7 @@ class RefControl {
   }
 
   private boolean canUpload(boolean regular) {
+    logger.atFine().log("------------- canUpload regular:%s   (RAJOUT refs/for/)", regular);
     if (regular) {
       return projectControl.controlForRef(refName).canPerform(Permission.PUSH);
     }
@@ -167,6 +168,7 @@ class RefControl {
 
   /** @return true if this user can submit merge patch sets to this ref */
   private boolean canUploadMerges(boolean regular) {
+    logger.atFine().log("------------- canUploadMerges regular:%s   (RAJOUT refs/for/)", regular);
     if (regular) {
       return projectControl.controlForRef(refName).canPerform(Permission.PUSH_MERGE);
     }

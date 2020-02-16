@@ -109,7 +109,7 @@ public class BranchCommitValidator {
       NoteMap rejectCommits,
       @Nullable Change change)
       throws IOException {
-    return validateCommit(objectReader, cmd, commit, isMerged, rejectCommits, change, false);
+    return validateCommit(objectReader, cmd, commit, isMerged, rejectCommits, change, false, false);
   }
 
   /**
@@ -130,7 +130,8 @@ public class BranchCommitValidator {
       boolean isMerged,
       NoteMap rejectCommits,
       @Nullable Change change,
-      boolean skipValidation)
+      boolean skipValidation,
+      boolean regular)
       throws IOException {
     try (TraceTimer traceTimer = TraceContext.newTimer("BranchCommitValidator#validateCommit")) {
       ImmutableList.Builder<CommitValidationMessage> messages = new ImmutableList.Builder<>();
