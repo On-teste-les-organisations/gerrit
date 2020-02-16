@@ -64,6 +64,10 @@ public class CommitReceivedEvent extends RefEvent implements AutoCloseable {
     return refName;
   }
 
+  public boolean isRegular() {
+    return refName.startsWith("refs/heads/");
+  }
+
   @Override
   public void close() {
     revWalk.close();

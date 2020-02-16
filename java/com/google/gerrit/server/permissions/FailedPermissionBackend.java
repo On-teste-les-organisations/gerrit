@@ -88,6 +88,12 @@ public class FailedPermissionBackend {
 
     @Override
     public void check(GlobalOrPluginPermission perm) throws PermissionBackendException {
+      check(perm, false);
+    }
+
+    @Override
+    public void check(GlobalOrPluginPermission perm, boolean regular)
+        throws PermissionBackendException {
       throw new PermissionBackendException(message, cause);
     }
 
@@ -180,6 +186,11 @@ public class FailedPermissionBackend {
 
     @Override
     public void check(RefPermission perm) throws PermissionBackendException {
+      check(perm, false);
+    }
+
+    @Override
+    public void check(RefPermission perm, boolean regular) throws PermissionBackendException {
       throw new PermissionBackendException(message, cause);
     }
 

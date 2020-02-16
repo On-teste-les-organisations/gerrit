@@ -117,9 +117,9 @@ public class DefaultPermissionBackend extends PermissionBackend {
     }
 
     @Override
-    public void check(GlobalOrPluginPermission perm)
+    public void check(GlobalOrPluginPermission perm, boolean regular)
         throws AuthException, PermissionBackendException {
-      if (!can(perm)) {
+      if (!can(perm, regular)) {
         throw new AuthException(perm.describeForException() + " not permitted");
       }
     }
@@ -129,7 +129,7 @@ public class DefaultPermissionBackend extends PermissionBackend {
         throws PermissionBackendException {
       Set<T> ok = Sets.newHashSetWithExpectedSize(permSet.size());
       for (T perm : permSet) {
-        if (can(perm)) {
+        if (can(perm, false)) {
           ok.add(perm);
         }
       }
@@ -141,9 +141,10 @@ public class DefaultPermissionBackend extends PermissionBackend {
       return new PermissionBackendCondition.WithUser(this, perm, user);
     }
 
-    private boolean can(GlobalOrPluginPermission perm) throws PermissionBackendException {
+    private boolean can(GlobalOrPluginPermission perm, boolean regular)
+        throws PermissionBackendException {
       if (perm instanceof GlobalPermission) {
-        return can((GlobalPermission) perm);
+        return can((GlobalPermission) perm, regular);
       } else if (perm instanceof PluginPermission) {
         PluginPermission pluginPermission = (PluginPermission) perm;
         return has(DefaultPermissionMappings.pluginCapabilityName(pluginPermission))
@@ -152,7 +153,7 @@ public class DefaultPermissionBackend extends PermissionBackend {
       throw new PermissionBackendException(perm + " unsupported");
     }
 
-    private boolean can(GlobalPermission perm) throws PermissionBackendException {
+    private boolean can(GlobalPermission perm, boolean regular) throws PermissionBackendException {
       switch (perm) {
         case ADMINISTRATE_SERVER:
           return isAdmin();
@@ -164,7 +165,7 @@ public class DefaultPermissionBackend extends PermissionBackend {
         case RUN_GC:
         case VIEW_CACHES:
         case VIEW_QUEUE:
-          return has(globalPermissionName(perm)) || can(GlobalPermission.MAINTAIN_SERVER);
+          return has(globalPermissionName(perm)) || can(GlobalPermission.MAINTAIN_SERVER, regular);
 
         case CREATE_ACCOUNT:
         case CREATE_GROUP:
