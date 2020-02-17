@@ -1,0 +1,40 @@
+//javatests/com/google/gerrit/acceptance/api/change:api_change           FAILED in 179.8s
+  /home/gchauvel/.cache/bazel/_bazel_gchauvel/bd2df60da7365a5c6a4d7f86ed40669f/execroot/gerrit/bazel-out/k8-fastbuild/testlogs/javatests/com/google/gerrit/acceptance/api/change/api_change/test.log
+//javatests/com/google/gerrit/acceptance/api/revision:api_revision       FAILED in 191.8s
+  /home/gchauvel/.cache/bazel/_bazel_gchauvel/bd2df60da7365a5c6a4d7f86ed40669f/execroot/gerrit/bazel-out/k8-fastbuild/testlogs/javatests/com/google/gerrit/acceptance/api/revision/api_revision/test.log
+//javatests/com/google/gerrit/acceptance/git:GitOverHttpServletIT        FAILED in 79.0s
+  /home/gchauvel/.cache/bazel/_bazel_gchauvel/bd2df60da7365a5c6a4d7f86ed40669f/execroot/gerrit/bazel-out/k8-fastbuild/testlogs/javatests/com/google/gerrit/acceptance/git/GitOverHttpServletIT/test.log
+//javatests/com/google/gerrit/acceptance/git:GitOverHttpServletWithSshdEnabledIT FAILED in 105.9s
+  /home/gchauvel/.cache/bazel/_bazel_gchauvel/bd2df60da7365a5c6a4d7f86ed40669f/execroot/gerrit/bazel-out/k8-fastbuild/testlogs/javatests/com/google/gerrit/acceptance/git/GitOverHttpServletWithSshdEnabledIT/test.log
+//javatests/com/google/gerrit/acceptance/git:HttpPushForReviewIT         FAILED in 81.8s
+  /home/gchauvel/.cache/bazel/_bazel_gchauvel/bd2df60da7365a5c6a4d7f86ed40669f/execroot/gerrit/bazel-out/k8-fastbuild/testlogs/javatests/com/google/gerrit/acceptance/git/HttpPushForReviewIT/test.log
+//javatests/com/google/gerrit/acceptance/git:PushPermissionsIT           FAILED in 26.0s
+  /home/gchauvel/.cache/bazel/_bazel_gchauvel/bd2df60da7365a5c6a4d7f86ed40669f/execroot/gerrit/bazel-out/k8-fastbuild/testlogs/javatests/com/google/gerrit/acceptance/git/PushPermissionsIT/test.log
+//javatests/com/google/gerrit/acceptance/git:SshPushForReviewIT          FAILED in 117.1s
+  /home/gchauvel/.cache/bazel/_bazel_gchauvel/bd2df60da7365a5c6a4d7f86ed40669f/execroot/gerrit/bazel-out/k8-fastbuild/testlogs/javatests/com/google/gerrit/acceptance/git/SshPushForReviewIT/test.log
+//javatests/com/google/gerrit/acceptance/pgm:elastic                     FAILED in 13.1s
+  /home/gchauvel/.cache/bazel/_bazel_gchauvel/bd2df60da7365a5c6a4d7f86ed40669f/execroot/gerrit/bazel-out/k8-fastbuild/testlogs/javatests/com/google/gerrit/acceptance/pgm/elastic/test.log
+//javatests/com/google/gerrit/acceptance/rest/change:SubmitByCherryPickIT FAILED in 90.2s
+  /home/gchauvel/.cache/bazel/_bazel_gchauvel/bd2df60da7365a5c6a4d7f86ed40669f/execroot/gerrit/bazel-out/k8-fastbuild/testlogs/javatests/com/google/gerrit/acceptance/rest/change/SubmitByCherryPickIT/test.log
+//javatests/com/google/gerrit/acceptance/rest/change:SubmitByFastForwardIT FAILED in 69.4s
+  /home/gchauvel/.cache/bazel/_bazel_gchauvel/bd2df60da7365a5c6a4d7f86ed40669f/execroot/gerrit/bazel-out/k8-fastbuild/testlogs/javatests/com/google/gerrit/acceptance/rest/change/SubmitByFastForwardIT/test.log
+//javatests/com/google/gerrit/acceptance/rest/change:SubmitByMergeAlwaysIT FAILED in 91.2s
+  /home/gchauvel/.cache/bazel/_bazel_gchauvel/bd2df60da7365a5c6a4d7f86ed40669f/execroot/gerrit/bazel-out/k8-fastbuild/testlogs/javatests/com/google/gerrit/acceptance/rest/change/SubmitByMergeAlwaysIT/test.log
+//javatests/com/google/gerrit/acceptance/rest/change:SubmitByMergeIfNecessaryIT FAILED in 105.0s
+  /home/gchauvel/.cache/bazel/_bazel_gchauvel/bd2df60da7365a5c6a4d7f86ed40669f/execroot/gerrit/bazel-out/k8-fastbuild/testlogs/javatests/com/google/gerrit/acceptance/rest/change/SubmitByMergeIfNecessaryIT/test.log
+//javatests/com/google/gerrit/acceptance/rest/change:SubmitByRebaseAlwaysIT FAILED in 100.2s
+  /home/gchauvel/.cache/bazel/_bazel_gchauvel/bd2df60da7365a5c6a4d7f86ed40669f/execroot/gerrit/bazel-out/k8-fastbuild/testlogs/javatests/com/google/gerrit/acceptance/rest/change/SubmitByRebaseAlwaysIT/test.log
+//javatests/com/google/gerrit/acceptance/rest/change:SubmitByRebaseIfNecessaryIT FAILED in 94.9s
+  /home/gchauvel/.cache/bazel/_bazel_gchauvel/bd2df60da7365a5c6a4d7f86ed40669f/execroot/gerrit/bazel-out/k8-fastbuild/testlogs/javatests/com/google/gerrit/acceptance/rest/change/SubmitByRebaseIfNecessaryIT/test.log
+//javatests/com/google/gerrit/acceptance/rest/change:SubmitResolvingMergeCommitIT FAILED in 30.1s
+  /home/gchauvel/.cache/bazel/_bazel_gchauvel/bd2df60da7365a5c6a4d7f86ed40669f/execroot/gerrit/bazel-out/k8-fastbuild/testlogs/javatests/com/google/gerrit/acceptance/rest/change/SubmitResolvingMergeCommitIT/test.log
+//javatests/com/google/gerrit/acceptance/rest/change:rest_change_other   FAILED in 164.7s
+  /home/gchauvel/.cache/bazel/_bazel_gchauvel/bd2df60da7365a5c6a4d7f86ed40669f/execroot/gerrit/bazel-out/k8-fastbuild/testlogs/javatests/com/google/gerrit/acceptance/rest/change/rest_change_other/test.log
+//javatests/com/google/gerrit/acceptance/rest/project:ListCommitFilesIT  FAILED in 23.8s
+  /home/gchauvel/.cache/bazel/_bazel_gchauvel/bd2df60da7365a5c6a4d7f86ed40669f/execroot/gerrit/bazel-out/k8-fastbuild/testlogs/javatests/com/google/gerrit/acceptance/rest/project/ListCommitFilesIT/test.log
+//javatests/com/google/gerrit/acceptance/server/change:server_change     FAILED in 82.8s
+  /home/gchauvel/.cache/bazel/_bazel_gchauvel/bd2df60da7365a5c6a4d7f86ed40669f/execroot/gerrit/bazel-out/k8-fastbuild/testlogs/javatests/com/google/gerrit/acceptance/server/change/server_change/test.log
+//javatests/com/google/gerrit/acceptance/ssh:elastic                     FAILED in 12.6s
+  /home/gchauvel/.cache/bazel/_bazel_gchauvel/bd2df60da7365a5c6a4d7f86ed40669f/execroot/gerrit/bazel-out/k8-fastbuild/testlogs/javatests/com/google/gerrit/acceptance/ssh/elastic/test.log
+//javatests/com/google/gerrit/integration/git:git                        FAILED in 1.7s
+  /home/gchauvel/.cache/bazel/_bazel_gchauvel/bd2df60da7365a5c6a4d7f86ed40669f/execroot/gerrit/bazel-out/k8-fastbuild/testlogs/javatests/com/google/gerrit/integration/git/git/test.log

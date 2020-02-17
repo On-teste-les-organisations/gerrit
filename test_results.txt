@@ -1,0 +1,22 @@
+//javatests/com/google/gerrit/acceptance/api/change:api_change           PASSED in 202.9s
+//javatests/com/google/gerrit/acceptance/api/revision:api_revision       PASSED in 209.2s
+//javatests/com/google/gerrit/acceptance/server/change:server_change     PASSED in 82.0s
+//javatests/com/google/gerrit/integration/git:git                        PASSED in 54.0s
+//javatests/com/google/gerrit/acceptance/git:GitOverHttpServletIT
+//javatests/com/google/gerrit/acceptance/git:GitOverHttpServletWithSshdEnabledIT
+//javatests/com/google/gerrit/acceptance/git:HttpPushForReviewIT
+//javatests/com/google/gerrit/acceptance/git:PushPermissionsIT
+//javatests/com/google/gerrit/acceptance/git:SshPushForReviewIT
+//javatests/com/google/gerrit/acceptance/rest/change:SubmitByCherryPickIT
+//javatests/com/google/gerrit/acceptance/rest/change:SubmitByFastForwardIT
+//javatests/com/google/gerrit/acceptance/rest/change:SubmitByMergeAlwaysIT
+//javatests/com/google/gerrit/acceptance/rest/change:SubmitByMergeIfNecessaryIT
+//javatests/com/google/gerrit/acceptance/rest/change:SubmitByRebaseAlwaysIT
+//javatests/com/google/gerrit/acceptance/rest/change:SubmitByRebaseIfNecessaryIT
+//javatests/com/google/gerrit/acceptance/rest/project:ListCommitFilesIT
+
+
+
+//javatests/com/google/gerrit/acceptance/ssh:elastic                     FAILED in 12.3s   DOCKER IMAGE
+//javatests/com/google/gerrit/acceptance/pgm:elastic                     FAILED in 12.7s   DOCKER IMAGE
+//javatests/com/google/gerrit/acceptance/rest/change:SubmitResolvingMergeCommitIT

@@ -1,0 +1,15 @@
+//javatests/com/google/gerrit/acceptance/rest/change:rest_change_other
+
+//javatests/com/google/gerrit/acceptance/git:GitOverHttpServletIT
+//javatests/com/google/gerrit/acceptance/git:GitOverHttpServletWithSshdEnabledIT
+//javatests/com/google/gerrit/acceptance/git:HttpPushForReviewIT
+//javatests/com/google/gerrit/acceptance/git:PushPermissionsIT
+//javatests/com/google/gerrit/acceptance/git:SshPushForReviewIT
+//javatests/com/google/gerrit/acceptance/rest/change:SubmitByCherryPickIT
+//javatests/com/google/gerrit/acceptance/rest/change:SubmitByFastForwardIT
+//javatests/com/google/gerrit/acceptance/rest/change:SubmitByMergeAlwaysIT
+//javatests/com/google/gerrit/acceptance/rest/change:SubmitByMergeIfNecessaryIT
+//javatests/com/google/gerrit/acceptance/rest/change:SubmitByRebaseAlwaysIT
+//javatests/com/google/gerrit/acceptance/rest/change:SubmitByRebaseIfNecessaryIT
+//javatests/com/google/gerrit/acceptance/rest/change:SubmitResolvingMergeCommitIT
+//javatests/com/google/gerrit/acceptance/rest/project:ListCommitFilesIT

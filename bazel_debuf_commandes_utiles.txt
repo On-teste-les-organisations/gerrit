@@ -1,0 +1,18 @@
+bazel test --nocache_test_results --test_filter=com.google.gerrit.acceptance.rest.change.CreateChangeIT.onlyContentMerged //javatests/com/google/gerrit/acceptance/rest/change:rest_change_other
+
+bazel test --nocache_test_results --test_filter=com.google.gerrit.acceptance.git.PushPermissionsIT.magicThenRegularPush //javatests/com/google/gerrit/acceptance/git:PushPermissionsIT
+²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²
+
+bazel test --nocache_test_results --test_filter=com.google.gerrit.acceptance.rest.change.SubmitByMergeAlwaysIT.submitMergeOfNonChangeBranchTip //javatests/com/google/gerrit/acceptance/rest/change:SubmitByMergeAlwaysIT
+
+bazel test --nocache_test_results --test_filter=com.google.gerrit.acceptance.rest.change.SubmitResolvingMergeCommitIT.resolvingMergeCommitWithTopics //javatests/com/google/gerrit/acceptance/rest/change:SubmitResolvingMergeCommitIT
+
+
+resolvingMergeCommitWithTopics
+
+
+
+bazel test --nocache_test_results //javatests/com/google/gerrit/acceptance/rest/change:rest_change_other //javatests/com/google/gerrit/acceptance/git:PushPermissionsIT
+bazel test --nocache_test_results --test_filter=com.google.gerrit.acceptance.rest.change.MoveChangeIT.moveMergeCommitChange //javatests/com/google/gerrit/acceptance/rest/change
+
+bazel test --nocache_test_results --test_filter=com.google.gerrit.acceptance.rest.change.CreateChangeIT //javatests/com/google/gerrit/acceptance/rest/change:rest_change_other
