@@ -159,13 +159,25 @@ class RefControl {
     return new ForRefImpl();
   }
 
-  private boolean canUpload() {
-    return projectControl.controlForRef("refs/for/" + refName).canPerform(Permission.PUSH);
+  private boolean canUpload(boolean isMagicEvent) {
+	if(isMagicEvent) {
+		return projectControl.controlForRef("refs/for/" + refName).canPerform(Permission.PUSH);
+	}
+	else {
+		return projectControl.controlForRef("refs/for/" + refName).canPerform(Permission.PUSH)
+			|| projectControl.controlForRef(refName).canPerform(Permission.PUSH);
+	}
   }
 
   /** @return true if this user can submit merge patch sets to this ref */
-  private boolean canUploadMerges() {
-    return projectControl.controlForRef("refs/for/" + refName).canPerform(Permission.PUSH_MERGE);
+  private boolean canUploadMerges(boolean isMagicEvent) {
+	if(isMagicEvent) {
+		return projectControl.controlForRef("refs/for/" + refName).canPerform(Permission.PUSH_MERGE);
+	}
+	else {
+		return projectControl.controlForRef("refs/for/" + refName).canPerform(Permission.PUSH_MERGE)
+			|| projectControl.controlForRef(refName).canPerform(Permission.PUSH_MERGE);
+	}
   }
 
   /** @return true if the user can update the reference as a fast-forward. */
