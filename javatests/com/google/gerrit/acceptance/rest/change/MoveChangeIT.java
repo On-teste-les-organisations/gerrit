@@ -180,16 +180,22 @@ public class MoveChangeIT extends AbstractDaemonTest {
   public void moveChangeToBranchWithoutUploadPerms() throws Exception {
     // Move change to a destination where user doesn't have upload permissions
     PushOneCommit.Result r = createChange();
+    System.err.println("11111111111111111111111111111111111111111111111111111111111111111111111111111111111");
     BranchNameKey newBranch =
         BranchNameKey.create(r.getChange().change().getProject(), "blocked_branch");
+    System.err.println("22222222222222222222222222222222222222222222222222222222222222222222222222222222222");
     createBranch(newBranch);
+    System.err.println("33333333333333333333333333333333333333333333333333333333333333333333333333333333333");
     projectOperations
         .project(project)
         .forUpdate()
         .add(block(Permission.PUSH).ref("refs/for/" + newBranch.branch()).group(REGISTERED_USERS))
+        .add(block(Permission.PUSH).ref(newBranch.branch()).group(REGISTERED_USERS))
         .update();
-    AuthException thrown =
+    System.err.println("44444444444444444444444444444444444444444444444444444444444444444444444444444444444");
+        AuthException thrown =
         assertThrows(AuthException.class, () -> move(r.getChangeId(), newBranch.branch()));
+    System.err.println("55555555555555555555555555555555555555555555555555555555555555555555555555555555555");
     assertThat(thrown).hasMessageThat().contains("move not permitted");
   }
 

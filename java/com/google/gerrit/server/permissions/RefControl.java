@@ -160,6 +160,7 @@ class RefControl {
   }
 
   private boolean canUpload(boolean isMagicEvent) {
+	logger.atFine().log("------------- canUpload isMagicEvent:%s", isMagicEvent);
 	if(isMagicEvent) {
 		return projectControl.controlForRef("refs/for/" + refName).canPerform(Permission.PUSH);
 	}
@@ -171,6 +172,7 @@ class RefControl {
 
   /** @return true if this user can submit merge patch sets to this ref */
   private boolean canUploadMerges(boolean isMagicEvent) {
+	logger.atFine().log("------------- canUploadMerges isMagicEvent:%s", isMagicEvent);
 	if(isMagicEvent) {
 		return projectControl.controlForRef("refs/for/" + refName).canPerform(Permission.PUSH_MERGE);
 	}
@@ -606,10 +608,10 @@ class RefControl {
         case FORGE_SERVER:
           return canForgeGerritServerIdentity();
         case MERGE:
-          return canUploadMerges();
+          return canUploadMerges(MagicBranch.isMagicBranch(refName));
 
         case CREATE_CHANGE:
-          return canUpload();
+          return canUpload(MagicBranch.isMagicBranch(refName));
 
         case CREATE_TAG:
         case CREATE_SIGNED_TAG:
@@ -632,7 +634,7 @@ class RefControl {
           return canForgeAuthor()
               && canForgeCommitter()
               && canForgeGerritServerIdentity()
-              && canUploadMerges();
+              && canUploadMerges(MagicBranch.isMagicBranch(refName));
       }
       throw new PermissionBackendException(perm + " unsupported");
     }
