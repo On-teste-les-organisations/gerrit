@@ -615,6 +615,7 @@ class ReceiveCommits {
     List<ReceiveCommand> regularCommands = new ArrayList<>();
 
     for (ReceiveCommand cmd : commands) {
+      logger.atFine().log("============================= TEST MAGICBRANCH:%s", cmd.getRefName());
       if (MagicBranch.isMagicBranch(cmd.getRefName())) {
         magicCommands.add(cmd);
       } else {
@@ -1649,6 +1650,7 @@ class ReceiveCommits {
     String parse(Repository repo, Set<String> refs, ListMultimap<String, String> pushOptions)
         throws CmdLineException {
       String ref = RefNames.fullName(MagicBranch.getDestBranchName(cmd.getRefName()));
+      logger.atFine().log("--- ReceiveCommits ref:%s cmd.getRefname:%s", ref, cmd.getRefName());
 
       ListMultimap<String, String> options = LinkedListMultimap.create(pushOptions);
 
@@ -3236,7 +3238,7 @@ class ReceiveCommits {
           if (existing.keySet().contains(c)) {
             continue;
           }
-
+          logger.atFine().log("---------- validateRegularPushCommits branch:%s cmd:%s", branch.branch(), cmd.getRefName());
           BranchCommitValidator.Result validationResult =
               validator.validateCommit(
                   walk.getObjectReader(), cmd, c, false, rejectCommits, null, skipValidation);

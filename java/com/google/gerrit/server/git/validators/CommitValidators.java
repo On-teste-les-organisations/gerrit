@@ -231,6 +231,7 @@ public class CommitValidators {
     List<CommitValidationMessage> messages = new ArrayList<>();
     try {
       for (CommitValidationListener commitValidator : validators) {
+        logger.atFine().log("////////////// 2 onCommitReceived:%s", receiveEvent.refName);
         messages.addAll(commitValidator.onCommitReceived(receiveEvent));
       }
     } catch (CommitValidationException e) {
@@ -503,6 +504,7 @@ public class CommitValidators {
       if (skipValidation && !validator.shouldValidateAllCommits()) {
         return;
       }
+      logger.atFine().log("////////////// 1 onCommitReceived:%s", receiveEvent.refName);
       messages.addAll(validator.onCommitReceived(receiveEvent));
     }
 

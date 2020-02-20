@@ -165,8 +165,8 @@ class RefControl {
 		return projectControl.controlForRef("refs/for/" + refName).canPerform(Permission.PUSH);
 	}
 	else {
-		return projectControl.controlForRef("refs/for/" + refName).canPerform(Permission.PUSH)
-			|| projectControl.controlForRef(refName).canPerform(Permission.PUSH);
+		return projectControl.controlForRef("refs/for/" + refName).canPerform(Permission.PUSH);
+			//|| projectControl.controlForRef(refName).canPerform(Permission.PUSH);
 	}
   }
 
@@ -177,8 +177,8 @@ class RefControl {
 		return projectControl.controlForRef("refs/for/" + refName).canPerform(Permission.PUSH_MERGE);
 	}
 	else {
-		return projectControl.controlForRef("refs/for/" + refName).canPerform(Permission.PUSH_MERGE)
-			|| projectControl.controlForRef(refName).canPerform(Permission.PUSH_MERGE);
+		return projectControl.controlForRef("refs/for/" + refName).canPerform(Permission.PUSH_MERGE);
+			//|| projectControl.controlForRef(refName).canPerform(Permission.PUSH_MERGE);
 	}
   }
 
