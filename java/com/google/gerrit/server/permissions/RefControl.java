@@ -27,6 +27,7 @@ import com.google.gerrit.reviewdb.client.Change;
 import com.google.gerrit.reviewdb.client.Project;
 import com.google.gerrit.reviewdb.client.RefNames;
 import com.google.gerrit.server.CurrentUser;
+import com.google.gerrit.server.events.CommitReceivedEvent;
 import com.google.gerrit.server.logging.CallerFinder;
 import com.google.gerrit.server.notedb.ChangeNotes;
 import com.google.gerrit.server.permissions.PermissionBackend.ForChange;
@@ -159,13 +160,29 @@ class RefControl {
     return new ForRefImpl();
   }
 
-  private boolean canUpload() {
-    return projectControl.controlForRef("refs/for/" + refName).canPerform(Permission.PUSH);
+  private boolean canUpload(CommitReceivedEvent receiveEvent) {
+    if (receiveEvent != null && !MagicBranch.isMagicBranch(receiveEvent.getRefName())) {
+      return projectControl
+              .controlForRef(MagicBranch.NEW_CHANGE + refName)
+              .canPerform(Permission.PUSH)
+          || projectControl.controlForRef(refName).canPerform(Permission.PUSH);
+    }
+    return projectControl
+        .controlForRef(MagicBranch.NEW_CHANGE + refName)
+        .canPerform(Permission.PUSH);
   }
 
   /** @return true if this user can submit merge patch sets to this ref */
-  private boolean canUploadMerges() {
-    return projectControl.controlForRef("refs/for/" + refName).canPerform(Permission.PUSH_MERGE);
+  private boolean canUploadMerges(CommitReceivedEvent receiveEvent) {
+    if (receiveEvent != null && !MagicBranch.isMagicBranch(receiveEvent.getRefName())) {
+      return projectControl
+              .controlForRef(MagicBranch.NEW_CHANGE + refName)
+              .canPerform(Permission.PUSH_MERGE)
+          || projectControl.controlForRef(refName).canPerform(Permission.PUSH_MERGE);
+    }
+    return projectControl
+        .controlForRef(MagicBranch.NEW_CHANGE + refName)
+        .canPerform(Permission.PUSH_MERGE);
   }
 
   /** @return true if the user can update the reference as a fast-forward. */
@@ -470,8 +487,9 @@ class RefControl {
     }
 
     @Override
-    public void check(RefPermission perm) throws AuthException, PermissionBackendException {
-      if (!can(perm)) {
+    public void check(RefPermission perm, CommitReceivedEvent receiveEvent)
+        throws AuthException, PermissionBackendException {
+      if (!can(perm, receiveEvent)) {
         PermissionDeniedException pde = new PermissionDeniedException(perm, refName);
         switch (perm) {
           case UPDATE:
@@ -562,7 +580,7 @@ class RefControl {
         throws PermissionBackendException {
       EnumSet<RefPermission> ok = EnumSet.noneOf(RefPermission.class);
       for (RefPermission perm : permSet) {
-        if (can(perm)) {
+        if (can(perm, null)) {
           ok.add(perm);
         }
       }
@@ -574,7 +592,8 @@ class RefControl {
       return new PermissionBackendCondition.ForRef(this, perm, getUser());
     }
 
-    private boolean can(RefPermission perm) throws PermissionBackendException {
+    private boolean can(RefPermission perm, CommitReceivedEvent receiveEvent)
+        throws PermissionBackendException {
       switch (perm) {
         case READ:
           return isVisible();
@@ -597,10 +616,10 @@ class RefControl {
         case FORGE_SERVER:
           return canForgeGerritServerIdentity();
         case MERGE:
-          return canUploadMerges();
+          return canUploadMerges(receiveEvent);
 
         case CREATE_CHANGE:
-          return canUpload();
+          return canUpload(receiveEvent);
 
         case CREATE_TAG:
         case CREATE_SIGNED_TAG:
@@ -623,7 +642,7 @@ class RefControl {
           return canForgeAuthor()
               && canForgeCommitter()
               && canForgeGerritServerIdentity()
-              && canUploadMerges();
+              && canUploadMerges(receiveEvent);
       }
       throw new PermissionBackendException(perm + " unsupported");
     }
