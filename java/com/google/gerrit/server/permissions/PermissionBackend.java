@@ -32,6 +32,7 @@ import com.google.gerrit.extensions.conditions.BooleanCondition;
 import com.google.gerrit.extensions.restapi.AuthException;
 import com.google.gerrit.extensions.restapi.ResourceNotFoundException;
 import com.google.gerrit.server.CurrentUser;
+import com.google.gerrit.server.events.CommitReceivedEvent;
 import com.google.gerrit.server.notedb.ChangeNotes;
 import com.google.gerrit.server.query.change.ChangeData;
 import com.google.inject.ImplementedBy;
@@ -393,7 +394,12 @@ public abstract class PermissionBackend {
     public abstract ForChange indexedChange(ChangeData cd, ChangeNotes notes);
 
     /** Verify scoped user can {@code perm}, throwing if denied. */
-    public abstract void check(RefPermission perm) throws AuthException, PermissionBackendException;
+    public void check(RefPermission perm) throws AuthException, PermissionBackendException {
+      check(perm, null);
+    }
+
+    public abstract void check(RefPermission perm, CommitReceivedEvent receiveEvent)
+        throws AuthException, PermissionBackendException;
 
     /** Filter {@code permSet} to permissions scoped user might be able to perform. */
     public abstract Set<RefPermission> test(Collection<RefPermission> permSet)
