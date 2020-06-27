@@ -1,0 +1,12 @@
+- job:
+    name: gerrittestjob
+    run: playbooks/testjob.yaml
+
+- project:
+    check:
+      jobs:
+        - gerrittestjob
+    gate:
+      jobs:
+        - gerrittestjob
+
